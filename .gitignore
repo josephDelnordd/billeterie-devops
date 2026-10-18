@@ -1,0 +1,47 @@
+# Environnement local et secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+secrets/
+
+# Node.js et outils JavaScript
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+dist/
+coverage/
+.vite/
+playwright-report/
+test-results/
+
+# Python et environnements virtuels
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Terraform : état, caches et fichiers de variables locaux
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+crash.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+*.tfvars
+!*.example.tfvars
+!infra/envs/staging.tfvars
+!infra/envs/prod.tfvars
+
+# IDE et système
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
