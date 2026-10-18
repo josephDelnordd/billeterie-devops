@@ -2,17 +2,27 @@
 
 Compléter les noms et coordonnées internes en équipe. Ne pas publier d'informations personnelles qui ne sont pas nécessaires au projet.
 
-## Responsabilités
+## Répartition à trois
 
-| Domaine | Responsable | Responsabilités principales |
-|---|---|---|
-| Application et données | À compléter | API, règles métier, schéma et migrations PostgreSQL, tests de réservation et concurrence |
-| Frontend et parcours utilisateur | À compléter | Interface de consultation/réservation, tests E2E et accessibilité de base |
-| Infrastructure et GitOps | À compléter | Terraform, AKS, Helm/Kustomize, ArgoCD, secrets et rollback |
-| CI, sécurité et observabilité | À compléter | GitHub Actions, scans, security gate, métriques, logs, dashboard et alertes |
-| Coordination et soutenance | À compléter | Suivi des cinq jours, documentation, ADR, répétition de démonstration |
+Remplacer les libellés « Membre 1/2/3 » par les noms de l'équipe.
 
-Dans une petite équipe, une personne peut couvrir plusieurs domaines. Chaque composant doit néanmoins avoir un titulaire principal et un relecteur différent si l'effectif le permet.
+| Membre | Responsabilité principale | Responsabilité secondaire |
+| --- | --- | --- |
+| Membre 1 - à renseigner | Application : API, règles métier, schéma/migrations PostgreSQL et intégrité des réservations | Frontend React et tests unitaires/intégration de l'application |
+| Membre 2 - à renseigner | Infrastructure/GitOps : Terraform, AKS, Helm/Kustomize, ArgoCD, secrets et rollback | Déploiement staging/prod et documentation d'architecture |
+| Membre 3 - à renseigner | CI/DevSecOps : workflows GitHub Actions, scans, security gate et registre d'images | Observabilité, tests E2E/k6/ZAP, coordination et soutenance |
+
+La répartition désigne un pilote, pas une propriété exclusive : les changements importants sont relus par un autre membre. Chaque personne doit contribuer à la démonstration et connaître le parcours commit → production.
+
+### Relecture croisée
+
+| Auteur | Relecteur principal suggéré |
+| --- | --- |
+| Membre 1 | Membre 2 |
+| Membre 2 | Membre 3 |
+| Membre 3 | Membre 1 |
+
+Pour une pull request qui touche plusieurs domaines, demander si possible une seconde revue ciblée. Aucun auteur ne valide sa propre pull request.
 
 ## Rituels et collaboration
 
@@ -29,10 +39,10 @@ Chaque membre doit pouvoir expliquer le parcours complet commit → CI → stagi
 ## Registre des tâches de cadrage
 
 | Tâche | Responsable | État |
-|---|---|---|
+| --- | --- | --- |
 | Confirmer le périmètre fonctionnel de la charte | Équipe | À faire |
 | Renseigner les responsables ci-dessus | Équipe | À faire |
-| Créer le dépôt GitHub et ajouter les membres | Responsable dépôt | À faire |
-| Appliquer les règles de protection de `main` | Responsable dépôt | À faire |
+| Ajouter les deux autres membres au dépôt GitHub | Membre 3 - à renseigner | À vérifier |
+| Appliquer les règles de protection de `main` | Membre 3 - à renseigner | À faire |
 | Installer les hooks et vérifier `make check` | Chaque membre | À faire |
 | Relire et accepter les ADR initiaux | Équipe | À faire |
