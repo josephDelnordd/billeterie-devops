@@ -1,0 +1,79 @@
+# Environnement de développement local : `make up` (ou `docker compose up --build`).
+# Les valeurs viennent du fichier .env (copié depuis .env.example par `make up`).
+name: billetterie
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-billetterie}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Définissez POSTGRES_PASSWORD dans .env (voir .env.example)}
+      POSTGRES_DB: ${POSTGRES_DB:-billetterie}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  # Tâche ponctuelle : applique les migrations et crée les événements de démonstration, puis s'arrête.
+  # L'API et le worker ne démarrent qu'après son succès.
+  migrate:
+    build: ./apps/api
+    command: ["node", "dist/db/run.js", "migrate", "seed"]
+    environment:
+      DATABASE_URL: &database-url postgres://${POSTGRES_USER:-billetterie}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-billetterie}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
+  api:
+    build: ./apps/api
+    environment:
+      DATABASE_URL: *database-url
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      # Derrière nginx : on fait confiance à X-Forwarded-For pour le rate limiting par IP.
+      TRUST_PROXY: "true"
+      RATE_LIMIT_MAX: ${RATE_LIMIT_MAX:-10}
+    ports:
+      - "127.0.0.1:${API_PORT:-3000}:3000"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
+  worker:
+    build: ./apps/worker
+    environment:
+      DATABASE_URL: *database-url
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      SMTP_HOST: mailpit
+      SMTP_PORT: "1025"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      mailpit:
+        condition: service_started
+    restart: unless-stopped
+
+  web:
+    build: ./apps/web
+    ports:
+      - "127.0.0.1:${WEB_PORT:-8080}:8080"
+    depends_on:
+      - api
+    restart: unless-stopped
+
+  # Faux serveur SMTP avec interface web : les e-mails de confirmation y sont visibles sur http://localhost:8025.
+  mailpit:
+    image: axllent/mailpit:latest
+    ports:
+      - "127.0.0.1:${MAILPIT_UI_PORT:-8025}:8025"
+    restart: unless-stopped
+
+volumes:
+  pgdata:
