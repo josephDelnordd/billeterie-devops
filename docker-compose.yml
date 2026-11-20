@@ -35,12 +35,16 @@ services:
     build: ./apps/api
     environment:
       DATABASE_URL: *database-url
+      # Port d'écoute DANS le conteneur : nginx y pointe (proxy_pass http://api:3000/).
+      # Le port exposé sur l'hôte est distinct (API_PORT, 3001 par défaut car 3000 est
+      # souvent déjà occupé par une autre application en local).
+      PORT: "3000"
       LOG_LEVEL: ${LOG_LEVEL:-info}
       # Derrière nginx : on fait confiance à X-Forwarded-For pour le rate limiting par IP.
       TRUST_PROXY: "true"
       RATE_LIMIT_MAX: ${RATE_LIMIT_MAX:-10}
     ports:
-      - "127.0.0.1:${API_PORT:-3000}:3000"
+      - "127.0.0.1:${API_PORT:-3001}:3000"
     depends_on:
       migrate:
         condition: service_completed_successfully

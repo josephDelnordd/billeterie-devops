@@ -5,7 +5,7 @@ describe("loadConfig", () => {
   it("applique les valeurs par défaut quand seule DATABASE_URL est fournie", () => {
     const config = loadConfig({ DATABASE_URL: "postgres://x" });
     expect(config).toMatchObject({
-      PORT: 3000,
+      PORT: 3001,
       HOST: "0.0.0.0",
       LOG_LEVEL: "info",
       TRUST_PROXY: false,

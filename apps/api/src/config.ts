@@ -1,7 +1,9 @@
 import { z } from "zod";
 
 const schema = z.object({
-  PORT: z.coerce.number().int().min(1).max(65535).default(3000),
+  // Port d'écoute par défaut : 3001, car 3000 est souvent déjà occupé en local.
+  // Dans Docker Compose, le conteneur écoute explicitement sur 3000 (voir docker-compose.yml).
+  PORT: z.coerce.number().int().min(1).max(65535).default(3001),
   HOST: z.string().min(1).default("0.0.0.0"),
   DATABASE_URL: z.string().min(1, "DATABASE_URL est obligatoire"),
   LOG_LEVEL: z
