@@ -1,0 +1,125 @@
+/* ==========================================================================
+   PlaceLibre — page détail d'un événement (/evenements/:id)
+   ========================================================================== */
+
+.detail {
+  overflow: hidden;
+  padding: 0;
+}
+
+.detail-media {
+  position: relative;
+  display: grid;
+  place-items: center;
+  height: 230px;
+  background:
+    radial-gradient(rgb(255 255 255 / 16%) 2px, transparent 2.1px),
+    linear-gradient(140deg, var(--cat) 0%, var(--cat-2) 100%);
+  background-size: 22px 22px, cover;
+}
+
+.detail-media-icon {
+  width: 96px;
+  height: 96px;
+  color: rgb(255 255 255 / 93%);
+  filter: drop-shadow(0 8px 18px rgb(0 0 0 / 32%));
+}
+
+.detail-body {
+  display: grid;
+  gap: 14px;
+  padding: 26px clamp(20px, 4vw, 38px) 30px;
+}
+
+.detail h1 {
+  margin: 0;
+  font-size: clamp(1.9rem, 4.5vw, 2.7rem);
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.meta-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.meta-chip {
+  padding: 7px 14px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: #f4f1fc;
+  color: var(--ink-2);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.description {
+  margin: 0;
+  font-size: 1.06rem;
+  color: var(--text);
+  max-width: 65ch;
+}
+
+/* Section « En détail » : accroche en lead, puis paragraphes de la description longue. */
+.detail-section-title {
+  margin: 6px 0 0;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.detail-long {
+  display: grid;
+  gap: 10px;
+  max-width: 65ch;
+}
+
+.detail-long p {
+  margin: 0;
+  color: var(--text);
+}
+
+/* Liste des tarifs : lignes label + prix en dégradé. */
+.price-list {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  max-width: 420px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+  background: #fbfaff;
+}
+
+.price-list li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 10px 16px;
+  font-weight: 600;
+}
+
+.price-list li + li {
+  border-top: 1px solid var(--border);
+}
+
+.price-list strong {
+  font-family: var(--font-display);
+  white-space: nowrap;
+  background: var(--gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.detail-availability {
+  display: grid;
+  gap: 8px;
+  max-width: 420px;
+}

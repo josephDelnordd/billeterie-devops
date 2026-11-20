@@ -1,0 +1,327 @@
+/* ==========================================================================
+   PlaceLibre — page catalogue (/evenements) : filtres, grille, cartes événement
+   ========================================================================== */
+
+/* ------------------------------------------------------- En-tête de page */
+
+.page-head {
+  padding: 14px 0 10px;
+}
+
+.page-head h1 {
+  margin: 0;
+  font-size: clamp(2rem, 4.5vw, 2.9rem);
+  font-weight: 700;
+  background: var(--gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.count {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.loading {
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.empty {
+  padding: 18px;
+  border: 1.5px dashed var(--border-strong);
+  border-radius: var(--radius);
+  color: var(--muted);
+  font-weight: 600;
+  text-align: center;
+}
+
+/* ------------------------------------------------------------ Filtres -- */
+
+.filters {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 10px 0;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: rgb(255 255 255 / 70%);
+}
+
+.filters-label {
+  color: var(--muted);
+  font-weight: 700;
+  font-size: 0.88rem;
+}
+
+.chip {
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: 1.5px solid var(--border-strong);
+  background: var(--card);
+  color: var(--text);
+  font-size: 0.92rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: none;
+  transition: transform 0.15s ease, border-color 0.15s ease, background-color 0.15s ease,
+    color 0.15s ease, box-shadow 0.2s ease;
+}
+
+.chip:hover {
+  transform: translateY(-1px);
+  border-color: var(--violet);
+  color: var(--violet);
+}
+
+/* Les puces sont des <button> : sans cette règle, le survol générique
+   button:hover:not(:disabled) (plus spécifique) leur donnait un texte
+   blanc sur le fond blanc de la puce. */
+button.chip:hover:not(:disabled) {
+  background: var(--card);
+  color: var(--violet);
+  box-shadow: none;
+  filter: none;
+}
+
+.chip.active {
+  border-color: transparent;
+  background: var(--ink-2);
+  color: #fff;
+  box-shadow: 0 5px 14px rgb(18 8 31 / 22%);
+}
+
+/* Puce active teintée aux couleurs de la catégorie / disponibilité. */
+.chip-cat-musique.active { background: #6d28d9; }
+.chip-cat-humour.active { background: #b45309; }
+.chip-cat-sport.active { background: #047857; }
+.chip-cat-exposition.active { background: #0369a1; }
+.chip-cat-theatre.active { background: #be123c; }
+.chip-avail-available.active { background: #047857; }
+.chip-avail-low.active { background: #b45309; }
+
+/* ------------------------------------------------------------- Grille -- */
+
+.grid {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  margin-top: 18px;
+}
+
+.grid > .event-card {
+  animation: fade-up 0.5s ease both;
+}
+
+.grid > .event-card:nth-child(2) { animation-delay: 0.07s; }
+.grid > .event-card:nth-child(3) { animation-delay: 0.14s; }
+.grid > .event-card:nth-child(4) { animation-delay: 0.21s; }
+.grid > .event-card:nth-child(5) { animation-delay: 0.28s; }
+.grid > .event-card:nth-child(6) { animation-delay: 0.35s; }
+.grid > .event-card:nth-child(n + 7) { animation-delay: 0.42s; }
+
+/* -------------------------------------------------------------- Cartes - */
+
+.event-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 0;
+  transition: transform 0.2s ease, box-shadow 0.25s ease;
+}
+
+.event-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Liseré dégradé qui apparaît au survol */
+.event-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
+  padding: 1.5px;
+  background: var(--gradient);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  pointer-events: none;
+}
+
+.event-card:hover::before {
+  opacity: 1;
+}
+
+.card-media {
+  position: relative;
+  display: grid;
+  place-items: center;
+  height: 132px;
+  background:
+    radial-gradient(rgb(255 255 255 / 16%) 1.5px, transparent 1.6px),
+    linear-gradient(140deg, var(--cat) 0%, var(--cat-2) 100%);
+  background-size: 18px 18px, cover;
+}
+
+.card-media-icon {
+  width: 54px;
+  height: 54px;
+  color: rgb(255 255 255 / 92%);
+  filter: drop-shadow(0 5px 12px rgb(0 0 0 / 30%));
+}
+
+.badge {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  margin: 0;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 94%);
+  color: var(--cat);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  box-shadow: 0 3px 8px rgb(0 0 0 / 12%);
+}
+
+.card-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px 18px 18px;
+}
+
+.card-body h2 {
+  margin: 0;
+  font-size: 1.22rem;
+  font-weight: 700;
+}
+
+.card-body h2 a {
+  color: var(--ink);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.card-body h2 a:hover {
+  color: var(--violet);
+}
+
+.meta {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.card-desc {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+  /* Accroche limitée à 3 lignes sur les cartes : le texte complet est sur la page de détail. */
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Prix le plus bas affiché sur la carte (« dès X € »). */
+.card-price {
+  margin: 0;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--ink);
+}
+
+.card-foot {
+  display: grid;
+  gap: 10px;
+  margin-top: auto;
+  padding-top: 8px;
+}
+
+.btn-card {
+  justify-content: center;
+  width: 100%;
+}
+
+/* ---------------------------------------------------- Disponibilité ---- */
+
+.availability {
+  margin: 0;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.availability.available { color: var(--ok); }
+.availability.low { color: var(--warn); }
+.availability.soldout { color: var(--danger); }
+
+/* Jauge <meter> stylée par pseudo-éléments (pas de style inline, CSP). */
+.meter {
+  display: block;
+  width: 100%;
+  height: 10px;
+}
+
+.meter::-webkit-meter-inner-element {
+  display: block;
+  height: 100%;
+}
+
+.meter::-webkit-meter-bar {
+  height: 100%;
+  border: none;
+  border-radius: 999px;
+  background: #ece8f8;
+}
+
+.meter::-webkit-meter-optimum-value,
+.meter::-webkit-meter-suboptimum-value,
+.meter::-webkit-meter-even-less-good-value {
+  border: none;
+  border-radius: 999px;
+  background: var(--ok);
+}
+
+.meter.low::-webkit-meter-optimum-value,
+.meter.low::-webkit-meter-suboptimum-value,
+.meter.low::-webkit-meter-even-less-good-value {
+  background: var(--amber);
+}
+
+.meter.soldout::-webkit-meter-optimum-value,
+.meter.soldout::-webkit-meter-suboptimum-value,
+.meter.soldout::-webkit-meter-even-less-good-value {
+  background: var(--danger);
+}
+
+.meter::-moz-meter-bar {
+  height: 100%;
+  border: none;
+  border-radius: 999px;
+  background: var(--ok);
+}
+
+.meter.low::-moz-meter-bar { background: var(--amber); }
+.meter.soldout::-moz-meter-bar { background: var(--danger); }
+
+/* -------------------------------------------------------- Responsive --- */
+
+@media (max-width: 640px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}

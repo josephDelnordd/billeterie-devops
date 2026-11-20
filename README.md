@@ -4,7 +4,7 @@ Projet de mise en application DevOps : une application de réservation de places
 
 ## État du dépôt
 
-Ce dépôt est actuellement au stade du cadrage et de l'initialisation. Le périmètre fonctionnel, les décisions techniques initiales, les conventions Git et les contrôles locaux sont documentés. L'application, la CI, l'infrastructure Azure et les manifestes GitOps seront ajoutés dans les étapes suivantes.
+L'application (API, worker d'e-mails, frontend) et ses tests fonctionnent en local avec Docker Compose. La CI, l'infrastructure Azure (Terraform, AKS) et les manifestes GitOps (ArgoCD) seront ajoutés dans les étapes suivantes : les dossiers `infra/`, `gitops/`, `observability/` et `.github/workflows/` sont prévus mais encore vides.
 
 ## Objectif fonctionnel
 
@@ -20,6 +20,84 @@ Un utilisateur peut consulter les événements disponibles, réserver une ou plu
 - [Estimation et optimisation des coûts Azure](docs/finops/finops.md)
 - [Cahier des charges fourni](docs/reference/cahier-des-charges.md)
 - [Décisions d'architecture (ADR)](docs/adr/)
+
+## Lancer l'application en local
+
+Prérequis : Docker (avec le plugin Compose) et GNU Make. Node.js 22 ou plus n'est nécessaire que pour lancer les tests hors Docker.
+
+```sh
+make up
+```
+
+La commande crée `.env` depuis `.env.example` si besoin, construit les images, applique les migrations, crée neuf événements de démonstration et attend que tous les services soient sains. Ensuite :
+
+| Service | Adresse | Rôle |
+| --- | --- | --- |
+| Application web | http://localhost:8080 | Catalogue et réservation |
+| Mailpit | http://localhost:8025 | Boîte de réception des e-mails (persistée dans un volume Docker : elle survit à `make down` et n'est vidée que par `make clean`) |
+| API | http://localhost:3000 | Accès direct, utile pour `curl` et les métriques (port configurable via `API_PORT` dans `.env`, ex. `3001` si 3000 est occupé) |
+
+Pour arrêter : `make down` (données conservées) ou `make clean` (données supprimées).
+
+### Parcours de démonstration
+
+L'application web est une SPA multi-pages (React Router, fallback nginx/Vite) :
+
+- `/` — page d'accueil : à la une (4 prochains événements) et accès au catalogue ;
+- `/evenements` — catalogue complet, filtrable par catégorie (musique, humour, sport, exposition, théâtre) et par disponibilité ;
+- `/evenements/:id` — page de détail d'un événement ;
+- `/evenements/:id/reserver` — formulaire de réservation (idempotent) ;
+- `/confirmation` — récapitulatif après réservation ;
+- `/tarifs` — politique de prix (catégories de billets, comment choisir son tarif) ;
+- `/a-propos` — page statique ;
+- `/contact` — formulaire de contact (envoyé à la boîte de support, visible dans Mailpit).
+
+1. Ouvrir http://localhost:8080, choisir un événement, sélectionner un tarif sur la page de réservation, puis réserver des places (le récapitulatif et l'e-mail indiquent le tarif choisi et le total).
+2. Ouvrir http://localhost:8025 : l'e-mail de confirmation y apparaît en quelques secondes.
+3. Réserver la dernière place de la « Soirée jazz intimiste » : elle passe en « Complet ».
+
+## Composants
+
+| Dossier | Contenu |
+| --- | --- |
+| `apps/api` | API Fastify (TypeScript) + PostgreSQL : catalogue, réservations, sondes de santé, métriques Prometheus |
+| `apps/worker` | Worker qui envoie les e-mails de confirmation depuis la boîte d'envoi PostgreSQL |
+| `apps/web` | Interface React + Vite + React Router (pages : accueil, détail, réservation, confirmation), servie par nginx qui relaie `/api` vers l'API |
+
+### API
+
+| Méthode et chemin | Réponses | Description |
+| --- | --- | --- |
+| `GET /events` | 200 | Événements à venir avec catégorie, tarifs (plusieurs prix par catégorie de billet) et places restantes (`?category=musique` pour filtrer) |
+| `GET /events/:id` | 200, 404 | Détail d'un événement, avec sa liste de tarifs |
+| `POST /events/:id/reservations` | 201, 200 (rejeu), 400, 404, 409, 422, 429 | Réserve des places, avec `priceId` optionnel (tarif de l'événement) ; en-tête `Idempotency-Key` obligatoire |
+| `POST /contact` | 201, 400, 429 | Message du formulaire de contact, déposé dans la boîte d'envoi (reçu par Mailpit en local) |
+| `GET /health/live` | 200 | Le processus répond (sonde liveness) |
+| `GET /health/ready` | 200, 503 | La base répond (sonde readiness) |
+| `GET /metrics` | 200 | Métriques Prometheus |
+
+Exemple :
+
+```sh
+curl -X POST http://localhost:8080/api/events/1/reservations \
+  -H 'Content-Type: application/json' \
+  -H "Idempotency-Key: $(uuidgen)" \
+  -d '{"customerName":"Ada","customerEmail":"ada@example.com","seats":2,"priceId":1}'
+```
+
+Rejouer la même requête avec la même clé renvoie `200` et la réservation d'origine, sans consommer de place supplémentaire. Les tarifs par événement (plusieurs prix, montants en centimes, tarif choisi à la réservation) sont décrits dans l'[ADR 0006](docs/adr/0006-tarifs-par-evenement.md). Le choix de PostgreSQL comme source de vérité est expliqué dans l'[ADR 0003](docs/adr/0003-postgresql-source-de-verite.md), celui de la boîte d'envoi dans l'[ADR 0005](docs/adr/0005-outbox-transactionnelle-pour-les-emails.md).
+
+## Tests
+
+```sh
+make install           # installe les dépendances (npm ci)
+make typecheck         # vérification des types
+make test-unit         # tests unitaires, sans Docker
+make test-integration  # tests d'intégration contre un vrai PostgreSQL (Docker requis)
+make test              # les deux
+```
+
+Les tests d'intégration démarrent un PostgreSQL jetable avec Testcontainers ; le premier lancement télécharge l'image et peut prendre une minute. Ils couvrent notamment la concurrence : 50 demandes simultanées pour 10 places ne produisent jamais plus de 10 réservations.
 
 ## Conventions de contribution
 
@@ -53,17 +131,13 @@ Ne configurez le remote `origin` et ne poussez qu'après création du dépôt Gi
 
 ## Commandes Make
 
-```sh
-make help          # affiche les commandes disponibles
-make hooks-install # installe les hooks pre-commit dans .git/hooks
-make check         # lance les vérifications configurées
-```
+`make help` liste toutes les commandes. Les principales : `up`, `down`, `clean`, `logs`, `ps`, `install`, `typecheck`, `test-unit`, `test-integration`, `test`, `hooks-install` et `check`.
 
-Les commandes d'application (`up`, `test`, `deploy`, `destroy`) seront ajoutées lorsque leurs fichiers et services existeront ; elles ne sont volontairement pas simulées à ce stade.
+Les commandes de déploiement (`deploy`, `destroy` de l'infrastructure) seront ajoutées avec Terraform ; elles ne sont volontairement pas simulées à ce stade.
 
-## Structure attendue
+## Structure
 
-L'arborescence cible est décrite dans [l'architecture proposée](docs/architecture/architecture-proposee.md). Le développement commencera par l'application et ses tests locaux, puis la CI, Terraform, AKS, ArgoCD et enfin la promotion staging/production.
+L'arborescence cible complète est décrite dans [l'architecture proposée](docs/architecture/architecture-proposee.md). Prochaines étapes : la CI, puis Terraform, AKS, ArgoCD et enfin la promotion staging/production.
 
 ## Sécurité et données
 

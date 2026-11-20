@@ -1,0 +1,343 @@
+/* ==========================================================================
+   PlaceLibre — base : design tokens, reset et composants partagés
+   --------------------------------------------------------------------------
+   CSP (nginx) : default-src 'self' → aucune ressource externe, aucun style
+   inline. Les polices sont auto-hébergées via @fontsource-variable (bundlées
+   par Vite dans dist/assets, même origine) ; les icônes sont des SVG inline.
+   ========================================================================== */
+
+:root {
+  /* Sections sombres */
+  --ink: #12081f;
+  --ink-2: #1b1035;
+
+  /* Fond & surfaces clairs */
+  --bg: #f7f5fd;
+  --card: #ffffff;
+  --text: #241b42;
+  --muted: #625b7d;
+  --border: #e9e4f6;
+  --border-strong: #d5cde9;
+
+  /* Accent principal : dégradé signature violet → fuchsia → ambre */
+  --violet: #7c3aed;
+  --fuchsia: #d946ef;
+  --amber: #f59e0b;
+  --gradient: linear-gradient(
+    120deg,
+    var(--violet) 0%,
+    var(--fuchsia) 52%,
+    var(--amber) 115%
+  );
+
+  /* Disponibilité */
+  --ok: #047857;
+  --warn: #b45309;
+  --danger: #dc2626;
+
+  --font-display: "Space Grotesk Variable", "Inter Variable", system-ui, sans-serif;
+  --font-body: "Inter Variable", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  --shadow-sm: 0 1px 2px rgb(18 8 31 / 6%), 0 6px 18px rgb(18 8 31 / 7%);
+  --shadow-lg: 0 8px 16px rgb(18 8 31 / 9%), 0 28px 56px rgb(124 58 237 / 20%);
+  --radius: 20px;
+
+  /* Teinte de catégorie par défaut (surchargée par les classes .cat-*) */
+  --cat: #7c3aed;
+  --cat-2: #a855f7;
+  --cat-soft: #ede9fe;
+}
+
+/* Teintes par catégorie (utilisées par .cat-*) */
+.cat-musique { --cat: #7c3aed; --cat-2: #a855f7; --cat-soft: #ede9fe; }
+.cat-humour { --cat: #f59e0b; --cat-2: #fb923c; --cat-soft: #fef3c7; }
+.cat-sport { --cat: #059669; --cat-2: #34d399; --cat-soft: #d1fae5; }
+.cat-exposition { --cat: #0284c7; --cat-2: #38bdf8; --cat-soft: #e0f2fe; }
+.cat-theatre { --cat: #e11d48; --cat-2: #fb7185; --cat-soft: #ffe4e6; }
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  line-height: 1.55;
+  color: var(--text);
+  background:
+    radial-gradient(52rem 30rem at 88% -8%, rgb(217 70 239 / 12%), transparent 62%),
+    radial-gradient(46rem 28rem at -12% -4%, rgb(124 58 237 / 13%), transparent 60%),
+    radial-gradient(44rem 28rem at 50% 115%, rgb(245 158 11 / 10%), transparent 62%),
+    var(--bg);
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  line-height: 1.12;
+  letter-spacing: -0.015em;
+}
+
+::selection {
+  background: rgb(217 70 239 / 28%);
+}
+
+:focus-visible {
+  outline: 3px solid rgb(124 58 237 / 65%);
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+
+/* Surface carte partagée */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+}
+
+/* ------------------------------------------------------- Boutons ------ */
+
+.btn,
+button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 11px 22px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--gradient);
+  color: #fff;
+  font-family: var(--font-body);
+  font-size: 0.98rem;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgb(124 58 237 / 35%);
+  transition: transform 0.15s ease, box-shadow 0.2s ease, filter 0.2s ease,
+    background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.btn:hover,
+button:hover:not(:disabled) {
+  color: #fff;
+  transform: translateY(-2px);
+  filter: saturate(1.12);
+  box-shadow: 0 12px 26px rgb(217 70 239 / 40%);
+}
+
+.btn:active,
+button:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.btn-lg {
+  padding: 14px 28px;
+  font-size: 1.05rem;
+}
+
+.btn.secondary,
+button.secondary {
+  background: var(--card);
+  color: var(--violet);
+  border: 1.5px solid var(--border-strong);
+  box-shadow: none;
+}
+
+.btn.secondary:hover,
+button.secondary:hover:not(:disabled) {
+  color: var(--violet);
+  border-color: var(--violet);
+  box-shadow: 0 8px 18px rgb(124 58 237 / 18%);
+  filter: none;
+}
+
+/* Variante "fantôme" pour le hero sombre */
+.btn-ghost {
+  background: transparent;
+  color: #fff;
+  border: 1.5px solid rgb(255 255 255 / 45%);
+  box-shadow: none;
+}
+
+.btn-ghost:hover {
+  color: #fff;
+  border-color: #fff;
+  background: rgb(255 255 255 / 10%);
+  box-shadow: none;
+  filter: none;
+}
+
+button:disabled,
+.btn:disabled {
+  background: #cfc9e2;
+  color: #6f688c;
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+/* --------------------------------------------------------- Alertes ----- */
+
+.error,
+.success {
+  display: grid;
+  gap: 10px;
+  margin: 16px 0;
+  padding: 16px 18px;
+  border-radius: 14px;
+}
+
+.error {
+  border: 1px solid rgb(220 38 38 / 25%);
+  border-left: 5px solid var(--danger);
+  background: #fef2f2;
+  color: #991b1b;
+}
+
+.error p {
+  margin: 0;
+  font-weight: 600;
+}
+
+.error .btn,
+.error button {
+  justify-self: start;
+}
+
+.success {
+  border: 1px solid rgb(4 120 87 / 25%);
+  border-left: 5px solid var(--ok);
+  background: #ecfdf5;
+  color: #065f46;
+}
+
+/* ------------------------------------------- Éléments partagés divers -- */
+
+/* Kicker dégradé (en-têtes de page, pages statiques) */
+.kicker {
+  margin: 0 0 6px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  background: var(--gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Scaffolding commun aux pages statiques (à propos, contact, 404) */
+.page-static {
+  margin-top: 10px;
+  padding: 30px clamp(22px, 4vw, 40px) 34px;
+}
+
+.page-static h1 {
+  margin: 0 0 14px;
+  font-size: clamp(1.9rem, 4.5vw, 2.6rem);
+  font-weight: 700;
+  background: var(--gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.page-static h2 {
+  margin: 22px 0 8px;
+  font-size: 1.25rem;
+  color: var(--ink);
+}
+
+.page-static p {
+  max-width: 68ch;
+}
+
+.page-static a:not(.btn) {
+  color: var(--violet);
+  font-weight: 600;
+}
+
+/* Récapitulatif clé/valeur (confirmation, coordonnées de contact) */
+.summary {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 8px 18px;
+  margin: 18px 0;
+  padding: 16px 18px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: #fbfaff;
+}
+
+.summary dt {
+  font-weight: 700;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.summary dd {
+  margin: 0;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+/* --------------------------------------------------------- Animations - */
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .marquee-track {
+    animation: none;
+  }
+
+  .event-card:hover {
+    transform: none;
+  }
+}
+
+/* -------------------------------------------------------- Responsive --- */
+
+@media (max-width: 640px) {
+  .summary {
+    grid-template-columns: 1fr;
+    gap: 2px 0;
+  }
+
+  .summary dt {
+    margin-top: 8px;
+  }
+}

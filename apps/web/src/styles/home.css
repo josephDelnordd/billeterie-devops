@@ -1,0 +1,233 @@
+/* ==========================================================================
+   PlaceLibre — page d'accueil (/)
+   ========================================================================== */
+
+/* ------------------------------------------------------------ Hero ---- */
+
+.hero {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  margin-top: 20px;
+  padding: clamp(44px, 8vw, 88px) clamp(22px, 6vw, 72px);
+  border-radius: 28px;
+  background:
+    radial-gradient(60rem 30rem at 110% -20%, rgb(217 70 239 / 22%), transparent 60%),
+    linear-gradient(160deg, var(--ink-2), var(--ink) 55%);
+  color: #fff;
+  box-shadow: var(--shadow-lg);
+}
+
+.hero-blob {
+  position: absolute;
+  z-index: -1;
+  border-radius: 50%;
+  filter: blur(70px);
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.hero-blob-1 {
+  width: 26rem;
+  height: 26rem;
+  left: -8rem;
+  top: -10rem;
+  background: radial-gradient(circle, var(--violet), transparent 65%);
+  animation: drift 14s ease-in-out infinite alternate;
+}
+
+.hero-blob-2 {
+  width: 22rem;
+  height: 22rem;
+  right: -6rem;
+  top: -6rem;
+  background: radial-gradient(circle, var(--fuchsia), transparent 65%);
+  animation: drift 18s ease-in-out infinite alternate-reverse;
+}
+
+.hero-blob-3 {
+  width: 28rem;
+  height: 28rem;
+  right: 12%;
+  bottom: -16rem;
+  background: radial-gradient(circle, var(--amber), transparent 65%);
+  animation: drift 22s ease-in-out infinite alternate;
+}
+
+@keyframes drift {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  to {
+    transform: translate3d(2.5rem, 2rem, 0) scale(1.15);
+  }
+}
+
+.hero-kicker {
+  display: inline-block;
+  margin: 0 0 10px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: 1px solid rgb(255 255 255 / 28%);
+  background: rgb(255 255 255 / 10%);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.hero h1 {
+  margin: 0 0 14px;
+  font-size: clamp(2.5rem, 6vw, 4rem);
+  font-weight: 700;
+  background: linear-gradient(115deg, #fff 35%, #f0abfc 65%, #fcd34d 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.hero .subtitle {
+  margin: 0 0 26px;
+  max-width: 44ch;
+  font-size: clamp(1.05rem, 2vw, 1.25rem);
+  color: rgb(255 255 255 / 82%);
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.hero-content > * {
+  animation: fade-up 0.6s ease both;
+}
+
+.hero-content > *:nth-child(2) { animation-delay: 0.08s; }
+.hero-content > *:nth-child(3) { animation-delay: 0.16s; }
+.hero-content > *:nth-child(4) { animation-delay: 0.24s; }
+
+/* --------------------------------------------------------- Marquee ---- */
+
+.marquee {
+  overflow: hidden;
+  margin: 22px 2px 6px;
+  padding: 12px 0;
+  border-block: 1px solid var(--border);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+}
+
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee 30s linear infinite;
+}
+
+.marquee:hover .marquee-track {
+  animation-play-state: paused;
+}
+
+.marquee-seq {
+  display: flex;
+  align-items: center;
+}
+
+.marquee-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 20px;
+  padding-right: 20px;
+  white-space: nowrap;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.05rem;
+  color: var(--ink-2);
+}
+
+.marquee-star {
+  color: var(--fuchsia);
+  font-size: 0.9rem;
+}
+
+@keyframes marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* ------------------------------------------- Sections « À la une » ----- */
+
+.section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 30px;
+}
+
+.section-head h2,
+.featured h2 {
+  margin: 0;
+  font-size: clamp(1.5rem, 3vw, 1.9rem);
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.link-more {
+  font-weight: 700;
+  color: var(--violet);
+  text-decoration: none;
+}
+
+.link-more:hover {
+  color: var(--fuchsia);
+  text-decoration: underline;
+}
+
+/* À la une (accueil) : 4 cartes bien aérées sur une ligne. */
+.grid-featured {
+  gap: 26px;
+  grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+}
+
+/* ------------------------------------------------------------- Teaser -- */
+
+.teaser {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 34px;
+  padding: 24px clamp(20px, 4vw, 32px);
+  border: 1px solid rgb(124 58 237 / 18%);
+  background:
+    radial-gradient(24rem 12rem at 100% 0%, rgb(217 70 239 / 10%), transparent 70%),
+    var(--card);
+}
+
+.teaser h2 {
+  margin: 0 0 6px;
+  font-size: 1.4rem;
+  color: var(--ink);
+}
+
+.teaser p {
+  margin: 0;
+  max-width: 52ch;
+  color: var(--muted);
+}
+
+/* -------------------------------------------------------- Responsive --- */
+
+@media (max-width: 640px) {
+  .hero {
+    border-radius: 22px;
+  }
+
+  .hero-actions .btn {
+    flex: 1 1 auto;
+  }
+}

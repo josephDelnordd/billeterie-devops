@@ -1,0 +1,176 @@
+/* ==========================================================================
+   PlaceLibre — page « À propos » (/a-propos)
+   ========================================================================== */
+
+.page-static ul {
+  margin: 0;
+  padding-left: 4px;
+  list-style: none;
+  display: grid;
+  gap: 8px;
+}
+
+.page-static li {
+  position: relative;
+  padding-left: 26px;
+}
+
+.page-static li::before {
+  content: "✦";
+  position: absolute;
+  left: 0;
+  background: var(--gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-size: 0.85rem;
+  top: 2px;
+}
+
+.page-static code {
+  padding: 2px 7px;
+  border-radius: 7px;
+  background: #f1edfb;
+  color: #6d28d9;
+  font-size: 0.9em;
+}
+
+/* Chiffres clés de la page « À propos » : cartes à gros chiffres dégradés. */
+.page-static ul.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 14px;
+  margin: 14px 0;
+  padding-left: 0;
+}
+
+.page-static ul.stats li {
+  padding: 16px 18px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: #fbfaff;
+}
+
+.page-static ul.stats li::before {
+  content: none;
+}
+
+.page-static ul.stats strong {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 1.7rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  background: var(--gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.page-static ul.stats span {
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+/* Cartes chiffres clés : léger lift au survol. */
+.page-static ul.stats li {
+  transition: transform 0.2s ease, box-shadow 0.25s ease, border-color 0.2s ease;
+}
+
+.page-static ul.stats li:hover {
+  transform: translateY(-4px);
+  border-color: rgb(124 58 237 / 35%);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Dynamisme : révélation des sections au scroll (classe .is-visible posée en JS). */
+.reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 0.55s ease, transform 0.55s ease;
+}
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* Délais en cascade pour un effet de défilement. */
+.reveal.d1 { transition-delay: 0.08s; }
+.reveal.d2 { transition-delay: 0.16s; }
+.reveal.d3 { transition-delay: 0.24s; }
+
+/* Grille de cartes de la page « À propos » (mission, engagements, équipe). */
+.about-grid {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  margin-top: 26px;
+}
+
+.page-static .about-card {
+  display: grid;
+  gap: 10px;
+  align-content: start;
+  padding: 24px clamp(20px, 3vw, 28px) 26px;
+  transition: transform 0.2s ease, box-shadow 0.25s ease;
+}
+
+.page-static .about-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+.page-static .about-card h2 {
+  margin: 0;
+  font-size: 1.2rem;
+  color: var(--ink);
+}
+
+.page-static .about-card p {
+  margin: 0;
+}
+
+/* Vignette d'icône en dégradé, comme la marque. */
+.about-icon {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 13px;
+  background: var(--gradient);
+  color: #fff;
+  box-shadow: 0 6px 14px rgb(124 58 237 / 38%);
+}
+
+.about-icon svg {
+  width: 23px;
+  height: 23px;
+}
+
+/* Intro : les paragraphes d'histoire s'étendent sur toute la largeur de la carte. */
+.page-static p.about-lead {
+  max-width: none;
+  font-size: 1.08rem;
+}
+
+/* CTA final : pleine largeur pour centrer le bouton dans toute la page. */
+.page-static p.about-cta {
+  max-width: none;
+  margin: 28px 0 0;
+  text-align: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .page-static ul.stats li:hover,
+  .page-static .about-card:hover {
+    transform: none;
+  }
+}
