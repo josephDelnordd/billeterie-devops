@@ -92,30 +92,32 @@ export function ReservationPage() {
         <span>Réservation</span>
       </nav>
 
-      <section className="page-head">
-        <p className="kicker">Réservation</p>
-        <h1>Réserver</h1>
-        <p className="meta">
-          {formatDate(event.startsAt)}
-          {event.venue ? ` · ${event.venue}` : ""} ·{" "}
-          {availabilityLabel(event.remaining, event.capacity)}
-        </p>
-      </section>
+      <div className="reservation-page">
+        <section className="page-head">
+          <p className="kicker">Réservation</p>
+          <h1>Réserver</h1>
+          <p className="meta">
+            {formatDate(event.startsAt)}
+            {event.venue ? ` · ${event.venue}` : ""} ·{" "}
+            {availabilityLabel(event.remaining, event.capacity)}
+          </p>
+        </section>
 
-      {status === "soldout" ? (
-        <div role="alert" className="error">
-          <p>Cet événement est complet : il ne reste plus de place.</p>
-          <Link className="btn" to={`/evenements/${event.id}`}>
-            Retour à l'événement
-          </Link>
-        </div>
-      ) : (
-        <ReservationForm
-          event={event}
-          onReserved={handleReserved}
-          onCancel={() => navigate(`/evenements/${event.id}`)}
-        />
-      )}
+        {status === "soldout" ? (
+          <div role="alert" className="error">
+            <p>Cet événement est complet : il ne reste plus de place.</p>
+            <Link className="btn" to={`/evenements/${event.id}`}>
+              Retour à l'événement
+            </Link>
+          </div>
+        ) : (
+          <ReservationForm
+            event={event}
+            onReserved={handleReserved}
+            onCancel={() => navigate(`/evenements/${event.id}`)}
+          />
+        )}
+      </div>
     </>
   );
 }

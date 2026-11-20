@@ -22,6 +22,17 @@
   max-width: none;
 }
 
+/* Page de réservation : en-tête centré et formulaire élargi + centré. */
+.reservation-page .page-head {
+  text-align: center;
+}
+
+.reservation-page > .form,
+.reservation-page > .error {
+  max-width: 780px;
+  margin: 18px auto;
+}
+
 .form-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
