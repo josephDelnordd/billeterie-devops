@@ -71,9 +71,16 @@ services:
   # Faux serveur SMTP avec interface web : les e-mails de confirmation y sont visibles sur http://localhost:8025.
   mailpit:
     image: axllent/mailpit:latest
+    environment:
+      # Persiste la boîte de réception sur disque : les e-mails survivent aux redémarrages
+      # et à `make down` (seul `make clean` les supprime, car il détruit tous les volumes).
+      MP_DATA_FILE: /data/mailpit.db
     ports:
       - "127.0.0.1:${MAILPIT_UI_PORT:-8025}:8025"
+    volumes:
+      - mailpitdata:/data
     restart: unless-stopped
 
 volumes:
   pgdata:
+  mailpitdata:

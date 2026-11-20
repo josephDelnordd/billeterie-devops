@@ -34,7 +34,7 @@ La commande crée `.env` depuis `.env.example` si besoin, construit les images, 
 | Service | Adresse | Rôle |
 | --- | --- | --- |
 | Application web | http://localhost:8080 | Catalogue et réservation |
-| Mailpit | http://localhost:8025 | Boîte de réception des e-mails de confirmation |
+| Mailpit | http://localhost:8025 | Boîte de réception des e-mails (persistée dans un volume Docker : elle survit à `make down` et n'est vidée que par `make clean`) |
 | API | http://localhost:3000 | Accès direct, utile pour `curl` et les métriques |
 
 Pour arrêter : `make down` (données conservées) ou `make clean` (données supprimées).
