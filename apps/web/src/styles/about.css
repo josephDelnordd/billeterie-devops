@@ -101,6 +101,60 @@
 .reveal.d2 { transition-delay: 0.16s; }
 .reveal.d3 { transition-delay: 0.24s; }
 
+/* Grille de cartes de la page « À propos » (mission, engagements, équipe). */
+.about-grid {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  margin-top: 26px;
+}
+
+.page-static .about-card {
+  display: grid;
+  gap: 10px;
+  align-content: start;
+  padding: 24px clamp(20px, 3vw, 28px) 26px;
+  transition: transform 0.2s ease, box-shadow 0.25s ease;
+}
+
+.page-static .about-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+.page-static .about-card h2 {
+  margin: 0;
+  font-size: 1.2rem;
+  color: var(--ink);
+}
+
+.page-static .about-card p {
+  margin: 0;
+}
+
+/* Vignette d'icône en dégradé, comme la marque. */
+.about-icon {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 13px;
+  background: var(--gradient);
+  color: #fff;
+  box-shadow: 0 6px 14px rgb(124 58 237 / 38%);
+}
+
+.about-icon svg {
+  width: 23px;
+  height: 23px;
+}
+
+/* CTA final centré sous la grille de cartes. */
+.about-cta {
+  margin-top: 28px;
+  text-align: center;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .reveal {
     opacity: 1;
@@ -108,7 +162,8 @@
     transition: none;
   }
 
-  .page-static ul.stats li:hover {
+  .page-static ul.stats li:hover,
+  .page-static .about-card:hover {
     transform: none;
   }
 }
