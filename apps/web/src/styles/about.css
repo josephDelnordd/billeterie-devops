@@ -72,3 +72,43 @@
   font-size: 0.9rem;
   font-weight: 500;
 }
+
+/* Cartes chiffres clés : léger lift au survol. */
+.page-static ul.stats li {
+  transition: transform 0.2s ease, box-shadow 0.25s ease, border-color 0.2s ease;
+}
+
+.page-static ul.stats li:hover {
+  transform: translateY(-4px);
+  border-color: rgb(124 58 237 / 35%);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Dynamisme : révélation des sections au scroll (classe .is-visible posée en JS). */
+.reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 0.55s ease, transform 0.55s ease;
+}
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* Délais en cascade pour un effet de défilement. */
+.reveal.d1 { transition-delay: 0.08s; }
+.reveal.d2 { transition-delay: 0.16s; }
+.reveal.d3 { transition-delay: 0.24s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .page-static ul.stats li:hover {
+    transform: none;
+  }
+}

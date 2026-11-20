@@ -77,6 +77,7 @@ export function ContactPage() {
                   required
                   maxLength={120}
                   autoComplete="name"
+                  placeholder="Ex. Ada Lovelace"
                   onChange={(e) => setName(e.target.value)}
                 />
               </label>
@@ -89,6 +90,7 @@ export function ContactPage() {
                   required
                   maxLength={254}
                   autoComplete="email"
+                  placeholder="Ex. ada@exemple.fr"
                   onChange={(e) => setEmail(e.target.value)}
                 />
               </label>
@@ -99,6 +101,7 @@ export function ContactPage() {
               <input
                 value={subject}
                 maxLength={200}
+                placeholder="Ex. Question sur ma réservation"
                 onChange={(e) => setSubject(e.target.value)}
               />
             </label>
@@ -111,6 +114,7 @@ export function ContactPage() {
                 minLength={10}
                 maxLength={5000}
                 rows={8}
+                placeholder="Ex. Bonjour, je voudrais réserver 2 places pour l'exposition Monet…"
                 onChange={(e) => setMessage(e.target.value)}
               />
             </label>
