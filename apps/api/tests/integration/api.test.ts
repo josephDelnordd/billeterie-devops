@@ -44,20 +44,41 @@ const post = (eventId: number | string, key: string, body: unknown = payload) =>
   });
 
 describe("GET /events", () => {
-  it("liste les événements à venir avec leurs places restantes", async () => {
-    await createEvent(db.pool, 50, "Concert");
+  it("liste les événements à venir avec leurs places restantes et leur catégorie", async () => {
+    await createEvent(db.pool, 50, "Concert", "musique");
     const response = await app.inject("/events");
     expect(response.statusCode).toBe(200);
     expect(response.json().events).toEqual([
-      expect.objectContaining({ name: "Concert", capacity: 50, remaining: 50 }),
+      expect.objectContaining({
+        name: "Concert",
+        category: "musique",
+        capacity: 50,
+        remaining: 50,
+      }),
     ]);
   });
 
   it("n’expose pas les événements passés", async () => {
     await db.pool.query(
-      "INSERT INTO events (name, starts_at, capacity, remaining) VALUES ('Passé', now() - interval '1 day', 5, 5)",
+      "INSERT INTO events (name, category, starts_at, capacity, remaining) VALUES ('Passé', 'sport', now() - interval '1 day', 5, 5)",
     );
     expect((await app.inject("/events")).json().events).toEqual([]);
+  });
+
+  it("filtre par catégorie avec ?category=", async () => {
+    await createEvent(db.pool, 50, "Concert", "musique");
+    await createEvent(db.pool, 30, "Match", "sport");
+    const response = await app.inject("/events?category=sport");
+    expect(response.statusCode).toBe(200);
+    expect(response.json().events).toEqual([
+      expect.objectContaining({ name: "Match", category: "sport" }),
+    ]);
+  });
+
+  it("répond 400 pour une catégorie inconnue", async () => {
+    const response = await app.inject("/events?category=cinema");
+    expect(response.statusCode).toBe(400);
+    expect(response.json().code).toBe("VALIDATION_ERROR");
   });
 });
 
@@ -154,5 +175,68 @@ describe("sondes et métriques avec une vraie base", () => {
     await post(id, "cle-metrique-01");
     const metrics = (await app.inject("/metrics")).body;
     expect(metrics).toMatch(/reservations_total\{outcome="confirmed"\} [1-9]/);
+  });
+});
+
+describe("POST /contact", () => {
+  const contactPayload = {
+    name: "Ada Lovelace",
+    email: "ada@example.com",
+    subject: "Question sur une réservation",
+    message: "Bonjour, est-il possible de changer de date ?",
+  };
+
+  it("enregistre le message dans la boîte d'envoi et répond 201", async () => {
+    const response = await app.inject({
+      method: "POST",
+      url: "/contact",
+      payload: contactPayload,
+    });
+    expect(response.statusCode).toBe(201);
+    expect(response.json()).toMatchObject({ status: "queued" });
+
+    const { rows } = await db.pool.query(
+      "SELECT reservation_id, recipient, subject, body FROM email_outbox",
+    );
+    expect(rows).toHaveLength(1);
+    expect(rows[0]).toMatchObject({
+      reservation_id: null,
+      recipient: "bonjour@placelibre.example",
+    });
+    expect(rows[0]!.subject).toContain("[Contact]");
+    expect(rows[0]!.subject).toContain("Question sur une réservation");
+    expect(rows[0]!.body).toContain("ada@example.com");
+    expect(rows[0]!.body).toContain("changer de date");
+  });
+
+  it("accepte un sujet facultatif", async () => {
+    const response = await app.inject({
+      method: "POST",
+      url: "/contact",
+      payload: { name: "Ada", email: "ada@example.com", message: "Une question de plus, longue de dix caractères." },
+    });
+    expect(response.statusCode).toBe(201);
+    const { rows } = await db.pool.query("SELECT subject FROM email_outbox");
+    expect(rows[0]!.subject).toContain("Message depuis le site");
+  });
+
+  it("rejette un message invalide avec 400 et le détail des champs", async () => {
+    const response = await app.inject({
+      method: "POST",
+      url: "/contact",
+      payload: { name: "", email: "pas-un-email", message: "court" },
+    });
+    expect(response.statusCode).toBe(400);
+    expect(response.json().code).toBe("VALIDATION_ERROR");
+    expect((await db.pool.query("SELECT count(*)::int AS n FROM email_outbox")).rows[0]!.n).toBe(0);
+  });
+
+  it("rejette un corps avec des clés inconnues (strict)", async () => {
+    const response = await app.inject({
+      method: "POST",
+      url: "/contact",
+      payload: { ...contactPayload, hacker: "x" },
+    });
+    expect(response.statusCode).toBe(400);
   });
 });

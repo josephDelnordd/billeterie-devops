@@ -32,3 +32,27 @@ export function buildConfirmationEmail(input: ConfirmationEmailInput): {
       `À bientôt !\n`,
   };
 }
+
+export interface ContactEmailInput {
+  name: string;
+  email: string;
+  subject?: string;
+  message: string;
+}
+
+/** Construit le message de contact reçu depuis le site (envoyé à la boîte de support). */
+export function buildContactEmail(input: ContactEmailInput): {
+  subject: string;
+  body: string;
+} {
+  const subject = input.subject?.trim() ? input.subject.trim() : "Message depuis le site";
+  return {
+    subject: `[Contact] ${subject} — ${input.name}`,
+    body:
+      `Nouveau message depuis le formulaire de contact.\n\n` +
+      `Nom : ${input.name}\n` +
+      `E-mail : ${input.email}\n` +
+      `Sujet : ${subject}\n\n` +
+      `Message :\n${input.message}\n`,
+  };
+}

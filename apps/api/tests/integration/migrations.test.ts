@@ -21,8 +21,15 @@ describe("migrations", () => {
   });
 
   it("enregistrent chaque migration appliquée", async () => {
-    const { rows } = await db.pool.query("SELECT name FROM schema_migrations");
-    expect(rows).toEqual([{ name: "001_init.sql" }]);
+    const { rows } = await db.pool.query(
+      "SELECT name FROM schema_migrations ORDER BY name",
+    );
+    expect(rows).toEqual([
+      { name: "001_init.sql" },
+      { name: "002_events_category.sql" },
+      { name: "003_contact_outbox.sql" },
+      { name: "004_events_long_description.sql" },
+    ]);
   });
 });
 
@@ -60,7 +67,7 @@ describe("seedDemoEvents", () => {
     await db.pool.query(
       "TRUNCATE email_outbox, reservations, events RESTART IDENTITY CASCADE",
     );
-    expect(await seedDemoEvents(db.pool)).toBe(3);
+    expect(await seedDemoEvents(db.pool)).toBe(9);
     expect(await seedDemoEvents(db.pool)).toBe(0);
   });
 });

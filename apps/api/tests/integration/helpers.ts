@@ -38,11 +38,12 @@ export async function createEvent(
   pool: Pool,
   capacity: number,
   name = "Événement de test",
+  category: string = "musique",
 ): Promise<number> {
   const { rows } = await pool.query<{ id: number }>(
-    `INSERT INTO events (name, venue, starts_at, capacity, remaining)
-     VALUES ($1, 'Salle de test', now() + interval '30 days', $2, $2) RETURNING id`,
-    [name, capacity],
+    `INSERT INTO events (name, venue, category, starts_at, capacity, remaining)
+     VALUES ($1, 'Salle de test', $3, now() + interval '30 days', $2, $2) RETURNING id`,
+    [name, capacity, category],
   );
   return rows[0]!.id;
 }

@@ -16,6 +16,14 @@ const schema = z.object({
   // Limite par IP sur la création de réservations (protection de base contre les bots).
   RATE_LIMIT_MAX: z.coerce.number().int().positive().default(10),
   RATE_LIMIT_WINDOW_MS: z.coerce.number().int().positive().default(60_000),
+  // Boîte de réception qui reçoit les messages du formulaire de contact.
+  CONTACT_EMAIL: z
+    .string()
+    .trim()
+    .toLowerCase()
+    .email()
+    .max(254)
+    .default("bonjour@placelibre.example"),
 });
 
 export type Config = z.infer<typeof schema>;

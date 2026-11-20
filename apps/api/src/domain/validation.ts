@@ -1,7 +1,13 @@
 import { z } from "zod";
+import { CATEGORIES } from "./categories.js";
 import { ValidationError } from "./errors.js";
 
 export const MAX_SEATS_PER_RESERVATION = 10;
+
+/** Filtre optionnel du catalogue : /events?category=musique. */
+export const eventsQuerySchema = z.object({
+  category: z.enum(CATEGORIES).optional(),
+});
 
 export const eventIdParamsSchema = z.object({
   id: z.coerce.number().int().positive().max(Number.MAX_SAFE_INTEGER),
@@ -27,6 +33,18 @@ export const reservationBodySchema = z
   .strict();
 
 export type ReservationBody = z.infer<typeof reservationBodySchema>;
+
+/** Corps du formulaire de contact (POST /contact). */
+export const contactBodySchema = z
+  .object({
+    name: z.string().trim().min(1).max(120),
+    email: z.string().trim().toLowerCase().email().max(254),
+    subject: z.string().trim().min(1).max(200).optional(),
+    message: z.string().trim().min(10, "10 caractères minimum").max(5000),
+  })
+  .strict();
+
+export type ContactBody = z.infer<typeof contactBodySchema>;
 
 /** Valide une valeur et lève une ValidationError (HTTP 400) avec le détail des champs en défaut. */
 export function parseOrThrow<T>(

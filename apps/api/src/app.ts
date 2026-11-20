@@ -3,6 +3,7 @@ import type { Pool } from "pg";
 import type { Config } from "./config.js";
 import { AppError } from "./domain/errors.js";
 import { createMetrics } from "./metrics.js";
+import { contactRoutes } from "./routes/contact.js";
 import { eventRoutes } from "./routes/events.js";
 import { healthRoutes } from "./routes/health.js";
 import { reservationRoutes } from "./routes/reservations.js";
@@ -64,6 +65,7 @@ export async function buildApp(
   await app.register(healthRoutes(pool, metrics));
   await app.register(eventRoutes(pool));
   await app.register(reservationRoutes(pool, config, metrics));
+  await app.register(contactRoutes(pool, config));
 
   return app;
 }

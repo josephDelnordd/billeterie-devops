@@ -1,14 +1,16 @@
 import { PostgreSqlContainer } from "@testcontainers/postgresql";
-import { readFile } from "node:fs/promises";
+import { readdir, readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
+import { join } from "node:path";
 import pg from "pg";
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import type { Mailer, OutgoingEmail } from "../../src/mailer.js";
 import { type ProcessOptions, processOutbox } from "../../src/outbox.js";
 
-// On applique le VRAI schéma de l'API : ces tests détecteraient une divergence entre les deux paquets.
-const SCHEMA_PATH = fileURLToPath(
-  new URL("../../../api/src/db/migrations/001_init.sql", import.meta.url),
+// On applique le VRAI schéma de l'API (toutes les migrations, dans l'ordre) :
+// ces tests détecteraient une divergence entre les deux paquets.
+const MIGRATIONS_DIR = fileURLToPath(
+  new URL("../../../api/src/db/migrations", import.meta.url),
 );
 
 const options: ProcessOptions = {
@@ -24,7 +26,12 @@ let pool: pg.Pool;
 beforeAll(async () => {
   container = await new PostgreSqlContainer("postgres:17-alpine").start();
   pool = new pg.Pool({ connectionString: container.getConnectionUri() });
-  await pool.query(await readFile(SCHEMA_PATH, "utf8"));
+  const files = (await readdir(MIGRATIONS_DIR))
+    .filter((file) => file.endsWith(".sql"))
+    .sort();
+  for (const file of files) {
+    await pool.query(await readFile(join(MIGRATIONS_DIR, file), "utf8"));
+  }
 });
 afterAll(async () => {
   await pool.end();
@@ -219,5 +226,26 @@ describe("processOutbox", () => {
     expect(subjects).toHaveLength(30);
     expect(new Set(subjects).size).toBe(30);
     expect((await statuses()).every((row) => row.status === "sent")).toBe(true);
+  });
+});
+
+describe("messages de contact (outbox sans réservation)", () => {
+  it("envoie aussi les lignes dont reservation_id est NULL", async () => {
+    await pool.query(
+      "INSERT INTO email_outbox (reservation_id, recipient, subject, body) VALUES (NULL, 'bonjour@placelibre.example', '[Contact] Test — Ada', 'corps du message')",
+    );
+    const mailer = new FakeMailer();
+    const summary = await processOutbox(pool, mailer, {
+      batchSize: 10,
+      maxAttempts: 3,
+      backoffBaseMs: 1,
+      backoffMaxMs: 5,
+    });
+    expect(summary.sent).toBe(1);
+    expect(mailer.sent[0]).toMatchObject({
+      to: "bonjour@placelibre.example",
+      subject: "[Contact] Test — Ada",
+    });
+    expect((await statuses())[0]).toMatchObject({ status: "sent", attempts: 1 });
   });
 });
