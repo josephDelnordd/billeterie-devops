@@ -29,7 +29,7 @@ Prérequis : Docker (avec le plugin Compose) et GNU Make. Node.js 22 ou plus n'e
 make up
 ```
 
-La commande crée `.env` depuis `.env.example` si besoin, construit les images, applique les migrations, crée trois événements de démonstration et attend que tous les services soient sains. Ensuite :
+La commande crée `.env` depuis `.env.example` si besoin, construit les images, applique les migrations, crée neuf événements de démonstration et attend que tous les services soient sains. Ensuite :
 
 | Service | Adresse | Rôle |
 | --- | --- | --- |
@@ -41,9 +41,19 @@ Pour arrêter : `make down` (données conservées) ou `make clean` (données sup
 
 ### Parcours de démonstration
 
-1. Ouvrir http://localhost:8080 et réserver des places pour un événement.
+L'application web est une SPA multi-pages (React Router, fallback nginx/Vite) :
+
+- `/` — page d'accueil : à la une (4 prochains événements) et accès au catalogue ;
+- `/evenements` — catalogue complet, filtrable par catégorie (musique, humour, sport, exposition, théâtre) et par disponibilité ;
+- `/evenements/:id` — page de détail d'un événement ;
+- `/evenements/:id/reserver` — formulaire de réservation (idempotent) ;
+- `/confirmation` — récapitulatif après réservation ;
+- `/a-propos` — page statique ;
+- `/contact` — formulaire de contact (envoyé à la boîte de support, visible dans Mailpit).
+
+1. Ouvrir http://localhost:8080, choisir un événement et réserver des places.
 2. Ouvrir http://localhost:8025 : l'e-mail de confirmation y apparaît en quelques secondes.
-3. Réserver toutes les places de l'événement « Dernières places » : il passe en « Complet ».
+3. Réserver la dernière place de la « Soirée jazz intimiste » : elle passe en « Complet ».
 
 ## Composants
 
@@ -51,15 +61,16 @@ Pour arrêter : `make down` (données conservées) ou `make clean` (données sup
 | --- | --- |
 | `apps/api` | API Fastify (TypeScript) + PostgreSQL : catalogue, réservations, sondes de santé, métriques Prometheus |
 | `apps/worker` | Worker qui envoie les e-mails de confirmation depuis la boîte d'envoi PostgreSQL |
-| `apps/web` | Interface React + Vite, servie par nginx qui relaie `/api` vers l'API |
+| `apps/web` | Interface React + Vite + React Router (pages : accueil, détail, réservation, confirmation), servie par nginx qui relaie `/api` vers l'API |
 
 ### API
 
 | Méthode et chemin | Réponses | Description |
 | --- | --- | --- |
-| `GET /events` | 200 | Événements à venir avec places restantes |
+| `GET /events` | 200 | Événements à venir avec catégorie et places restantes (`?category=musique` pour filtrer) |
 | `GET /events/:id` | 200, 404 | Détail d'un événement |
 | `POST /events/:id/reservations` | 201, 200 (rejeu), 400, 404, 409, 422, 429 | Réserve des places ; en-tête `Idempotency-Key` obligatoire |
+| `POST /contact` | 201, 400, 429 | Message du formulaire de contact, déposé dans la boîte d'envoi (reçu par Mailpit en local) |
 | `GET /health/live` | 200 | Le processus répond (sonde liveness) |
 | `GET /health/ready` | 200, 503 | La base répond (sonde readiness) |
 | `GET /metrics` | 200 | Métriques Prometheus |
