@@ -1,8 +1,13 @@
+import type { Category } from "./categories";
+
 export interface EventItem {
   id: number;
   name: string;
   description: string;
+  /** Texte détaillé de la page événement (paragraphes séparés par une ligne vide). */
+  longDescription: string;
   venue: string;
+  category: Category;
   startsAt: string;
   capacity: number;
   remaining: number;
@@ -70,6 +75,35 @@ async function request<T>(
 export async function fetchEvents(): Promise<EventItem[]> {
   const { data } = await request<{ events: EventItem[] }>("/events");
   return data.events;
+}
+
+export async function fetchEvent(id: number): Promise<EventItem> {
+  const { data } = await request<EventItem>(`/events/${id}`);
+  return data;
+}
+
+export interface ContactMessage {
+  name: string;
+  email: string;
+  subject?: string;
+  message: string;
+}
+
+export interface ContactMessageResult {
+  id: number;
+  status: "queued";
+}
+
+/** Envoie un message du formulaire de contact (reçu par la boîte de support, visible dans Mailpit). */
+export async function sendContactMessage(
+  payload: ContactMessage,
+): Promise<ContactMessageResult> {
+  const { data } = await request<ContactMessageResult>("/contact", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  return data;
 }
 
 export interface ReservationOutcome {

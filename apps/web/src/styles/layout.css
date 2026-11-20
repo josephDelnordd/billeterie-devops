@@ -1,0 +1,192 @@
+/* ==========================================================================
+   PlaceLibre — layout : conteneur, en-tête sticky, fil d'Ariane, pied de page
+   ========================================================================== */
+
+.container {
+  max-width: 1360px;
+  margin-inline: auto;
+  padding: 20px clamp(16px, 4vw, 32px) 56px;
+}
+
+/* ---------------------------------------------------------- En-tête ---- */
+
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgb(255 255 255 / 78%);
+  -webkit-backdrop-filter: blur(14px) saturate(1.5);
+  backdrop-filter: blur(14px) saturate(1.5);
+  border-bottom: 1px solid rgb(124 58 237 / 14%);
+}
+
+.header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+  padding-top: 12px;
+  padding-bottom: 12px;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+
+.brand-tile {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 11px;
+  background: var(--gradient);
+  color: #fff;
+  box-shadow: 0 6px 14px rgb(124 58 237 / 38%);
+}
+
+.brand-icon {
+  width: 20px;
+  height: 20px;
+}
+
+.brand-name {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.45rem;
+  letter-spacing: -0.02em;
+  background: var(--gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.main-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.main-nav a {
+  padding: 8px 16px;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--text);
+  text-decoration: none;
+  transition: background-color 0.15s ease, color 0.15s ease, box-shadow 0.2s ease;
+}
+
+.main-nav a:hover {
+  background: rgb(124 58 237 / 9%);
+  color: var(--violet);
+}
+
+.main-nav a.active {
+  background: var(--gradient);
+  color: #fff;
+  box-shadow: 0 5px 14px rgb(124 58 237 / 38%);
+}
+
+/* -------------------------------------------------------- Fil d'Ariane - */
+
+.breadcrumb {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 6px 0 14px;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.breadcrumb a {
+  color: var(--violet);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.breadcrumb a:hover {
+  text-decoration: underline;
+}
+
+/* ------------------------------------------------------------ Pied ---- */
+
+.site-footer {
+  margin-top: 56px;
+  background:
+    radial-gradient(40rem 18rem at 85% -30%, rgb(217 70 239 / 20%), transparent 60%),
+    linear-gradient(170deg, var(--ink-2), var(--ink));
+  color: #cfc9e6;
+}
+
+.footer-inner {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 28px;
+  padding-top: 44px;
+  padding-bottom: 30px;
+}
+
+.footer-brand p {
+  margin: 10px 0 0;
+  max-width: 40ch;
+  font-size: 0.95rem;
+}
+
+.footer-col {
+  display: grid;
+  gap: 7px;
+  align-content: start;
+}
+
+.footer-title {
+  margin: 0 0 4px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: #fff;
+}
+
+.footer-col a {
+  color: #cfc9e6;
+  text-decoration: none;
+  font-weight: 500;
+  width: fit-content;
+}
+
+.footer-col a:hover {
+  color: #fff;
+  text-decoration: underline;
+}
+
+.footer-note {
+  margin: 0;
+  font-size: 0.92rem;
+}
+
+.footer-note a {
+  color: #f0abfc;
+}
+
+.footer-base {
+  border-top: 1px solid rgb(255 255 255 / 12%);
+  padding: 18px 0 30px;
+  font-size: 0.85rem;
+  color: #9d94c4;
+}
+
+.footer-base .container {
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+/* -------------------------------------------------------- Responsive --- */
+
+@media (max-width: 640px) {
+  .header-inner {
+    justify-content: center;
+  }
+}

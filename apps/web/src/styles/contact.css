@@ -1,0 +1,23 @@
+/* ==========================================================================
+   PlaceLibre — page contact (/contact) : formulaire large à gauche,
+   colonne coordonnées à droite — les deux sections défilent ensemble
+   ========================================================================== */
+
+/* Mise en page deux colonnes : formulaire à gauche, coordonnées à droite. */
+.page-grid {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: minmax(0, 1.9fr) minmax(280px, 1fr);
+  align-items: start;
+}
+
+/* Colonne coordonnées : scroll identique au formulaire (pas de sticky). */
+.page-aside {
+  padding: 26px clamp(20px, 3vw, 30px) 30px;
+}
+
+@media (max-width: 900px) {
+  .page-grid {
+    grid-template-columns: 1fr;
+  }
+}

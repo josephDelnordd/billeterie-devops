@@ -1,32 +1,18 @@
 import { useRef, useState, type FormEvent } from "react";
 import {
-  ApiError,
   createReservation,
   type EventItem,
-  type Reservation,
+  type ReservationOutcome,
 } from "../api";
 import { newIdempotencyKey } from "../format";
+import { messageFor } from "../userError";
 
 const MAX_SEATS = 10;
 
 interface Props {
   event: EventItem;
-  onReserved: (reservation: Reservation) => void;
+  onReserved: (outcome: ReservationOutcome) => void;
   onCancel: () => void;
-}
-
-/** Messages adaptés à l'utilisateur : on ne montre jamais un code technique brut. */
-function messageFor(error: unknown): string {
-  if (error instanceof ApiError) {
-    if (error.code === "INSUFFICIENT_SEATS")
-      return "Il ne reste plus assez de places pour cette demande.";
-    if (error.code === "RATE_LIMITED")
-      return "Trop de demandes. Patientez un instant avant de réessayer.";
-    if (error.code === "VALIDATION_ERROR")
-      return "Certaines informations sont invalides. Vérifiez le formulaire.";
-    return error.message;
-  }
-  return "Une erreur inattendue est survenue.";
 }
 
 export function ReservationForm({ event, onReserved, onCancel }: Props) {
@@ -52,12 +38,12 @@ export function ReservationForm({ event, onReserved, onCancel }: Props) {
     setError(null);
     setSubmitting(true);
     try {
-      const { reservation } = await createReservation(
+      const outcome = await createReservation(
         event.id,
         { customerName: name.trim(), customerEmail: email.trim(), seats },
         keyRef.current,
       );
-      onReserved(reservation);
+      onReserved(outcome);
     } catch (caught) {
       setError(messageFor(caught));
     } finally {
@@ -71,7 +57,7 @@ export function ReservationForm({ event, onReserved, onCancel }: Props) {
       aria-label={`Réserver ${event.name}`}
       className="form"
     >
-      <h3>Réserver : {event.name}</h3>
+      <h2>Réserver : {event.name}</h2>
 
       <label>
         Nom

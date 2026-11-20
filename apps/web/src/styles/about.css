@@ -1,0 +1,74 @@
+/* ==========================================================================
+   PlaceLibre — page « À propos » (/a-propos)
+   ========================================================================== */
+
+.page-static ul {
+  margin: 0;
+  padding-left: 4px;
+  list-style: none;
+  display: grid;
+  gap: 8px;
+}
+
+.page-static li {
+  position: relative;
+  padding-left: 26px;
+}
+
+.page-static li::before {
+  content: "✦";
+  position: absolute;
+  left: 0;
+  background: var(--gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-size: 0.85rem;
+  top: 2px;
+}
+
+.page-static code {
+  padding: 2px 7px;
+  border-radius: 7px;
+  background: #f1edfb;
+  color: #6d28d9;
+  font-size: 0.9em;
+}
+
+/* Chiffres clés de la page « À propos » : cartes à gros chiffres dégradés. */
+.page-static ul.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 14px;
+  margin: 14px 0;
+  padding-left: 0;
+}
+
+.page-static ul.stats li {
+  padding: 16px 18px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: #fbfaff;
+}
+
+.page-static ul.stats li::before {
+  content: none;
+}
+
+.page-static ul.stats strong {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 1.7rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  background: var(--gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.page-static ul.stats span {
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
