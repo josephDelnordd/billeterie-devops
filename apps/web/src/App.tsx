@@ -7,6 +7,7 @@ import { EventPage } from "./pages/EventPage";
 import { EventsPage } from "./pages/EventsPage";
 import { HomePage } from "./pages/HomePage";
 import { NotFoundPage } from "./pages/NotFoundPage";
+import { PricingPage } from "./pages/PricingPage";
 import { ReservationPage } from "./pages/ReservationPage";
 
 /**
@@ -23,6 +24,7 @@ export function App() {
         <Route path="evenements/:id/reserver" element={<ReservationPage />} />
         <Route path="confirmation" element={<ConfirmationPage />} />
         <Route path="a-propos" element={<AboutPage />} />
+        <Route path="tarifs" element={<PricingPage />} />
         <Route path="contact" element={<ContactPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Route>

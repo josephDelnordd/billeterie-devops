@@ -2,6 +2,7 @@ import type { Category } from "./categories";
 
 /** Un tarif d'événement (catégorie de billet), montant en centimes. */
 export interface EventPrice {
+  id: number;
   label: string;
   amountCents: number;
 }
@@ -27,6 +28,8 @@ export interface Reservation {
   customerName: string;
   customerEmail: string;
   seats: number;
+  /** Tarif choisi à la réservation, s'il y en a un. */
+  price: EventPrice | null;
   status: "confirmed" | "cancelled";
   createdAt: string;
 }
@@ -35,6 +38,8 @@ export interface ReservationRequest {
   customerName: string;
   customerEmail: string;
   seats: number;
+  /** Tarif choisi (id de event_prices), envoyé quand l'événement a des tarifs. */
+  priceId?: number;
 }
 
 /** Erreur renvoyée par l'API (ou réseau injoignable : status 0). */

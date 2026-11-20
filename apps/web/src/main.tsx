@@ -16,6 +16,7 @@ import "./styles/event-detail.css";
 import "./styles/reservation.css";
 import "./styles/confirmation.css";
 import "./styles/about.css";
+import "./styles/pricing.css";
 import "./styles/contact.css";
 import "./styles/not-found.css";
 

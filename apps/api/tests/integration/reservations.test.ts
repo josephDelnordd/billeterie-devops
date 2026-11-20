@@ -75,6 +75,48 @@ describe("reserve", () => {
     expect(rows[0].subject).toContain(`n°${reservation.id}`);
   });
 
+  it("enregistre le tarif choisi et le renvoie dans le DTO", async () => {
+    const eventId = await createEvent(db.pool, 10);
+    const { rows } = await db.pool.query<{ id: number }>(
+      "INSERT INTO event_prices (event_id, label, amount_cents, position) VALUES ($1, 'Réduit', 1200, 1) RETURNING id",
+      [eventId],
+    );
+    const priceId = rows[0]!.id;
+
+    const { reservation } = await reserve(db.pool, input(eventId, { priceId }));
+
+    expect(reservation.price).toEqual({
+      id: priceId,
+      label: "Réduit",
+      amountCents: 1200,
+    });
+    // L'e-mail de confirmation mentionne le tarif et le total.
+    const outbox = await db.pool.query<{ body: string }>(
+      "SELECT body FROM email_outbox WHERE reservation_id = $1",
+      [reservation.id],
+    );
+    // NB : Intl fr-FR insère une espace insécable avant « € » (U+202F).
+    const body = outbox.rows[0]!.body.replace(/[\u00a0\u202f]/g, " ");
+    expect(body).toContain("Tarif : Réduit (12,00 € / place)");
+    expect(body).toContain("Total : 12,00 € (1 place × 12,00 €)");
+  });
+
+  it("rejette un tarif qui n'appartient pas à l'événement", async () => {
+    const eventId = await createEvent(db.pool, 10);
+    const otherEventId = await createEvent(db.pool, 10, "Autre événement");
+    const { rows } = await db.pool.query<{ id: number }>(
+      "INSERT INTO event_prices (event_id, label, amount_cents) VALUES ($1, 'Plein tarif', 1800) RETURNING id",
+      [otherEventId],
+    );
+
+    await expect(
+      reserve(db.pool, input(eventId, { priceId: rows[0]!.id })),
+    ).rejects.toMatchObject({ name: "ValidationError" });
+    // Rien n'a été persisté.
+    expect(await count("reservations")).toBe(0);
+    expect(await count("email_outbox")).toBe(0);
+  });
+
   it("refuse quand il manque des places, sans rien modifier", async () => {
     const eventId = await createEvent(db.pool, 2);
 

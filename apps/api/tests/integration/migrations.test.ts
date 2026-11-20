@@ -30,6 +30,7 @@ describe("migrations", () => {
       { name: "003_contact_outbox.sql" },
       { name: "004_events_long_description.sql" },
       { name: "005_event_prices.sql" },
+      { name: "006_reservations_price.sql" },
     ]);
   });
 });

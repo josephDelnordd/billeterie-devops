@@ -3,6 +3,7 @@ import type { Category } from "../domain/categories.js";
 import { NotFoundError } from "../domain/errors.js";
 
 export interface EventPriceDto {
+  id: number;
   label: string;
   amountCents: number;
 }
@@ -33,6 +34,7 @@ interface EventRow {
 }
 
 interface PriceRow {
+  id: number;
   event_id: number;
   label: string;
   amount_cents: number;
@@ -64,7 +66,7 @@ async function attachPrices(
   const ids = dtos.map((dto) => dto.id);
   if (ids.length === 0) return dtos;
   const { rows } = await pool.query<PriceRow>(
-    `SELECT event_id, label, amount_cents FROM event_prices
+    `SELECT id, event_id, label, amount_cents FROM event_prices
      WHERE event_id = ANY($1::bigint[])
      ORDER BY position, id`,
     [ids],
@@ -72,7 +74,7 @@ async function attachPrices(
   const byEvent = new Map<number, EventPriceDto[]>();
   for (const row of rows) {
     const list = byEvent.get(row.event_id) ?? [];
-    list.push({ label: row.label, amountCents: row.amount_cents });
+    list.push({ id: row.id, label: row.label, amountCents: row.amount_cents });
     byEvent.set(row.event_id, list);
   }
   for (const dto of dtos) {

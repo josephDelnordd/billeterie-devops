@@ -29,6 +29,9 @@ export const reservationBodySchema = z
     customerName: z.string().trim().min(1).max(120),
     customerEmail: z.string().trim().toLowerCase().email().max(254),
     seats: z.number().int().min(1).max(MAX_SEATS_PER_RESERVATION),
+    // Tarif choisi (event_prices.id) : optionnel, mais s'il est fourni il doit
+    // appartenir à l'événement (vérifié dans le service, dans la transaction).
+    priceId: z.number().int().positive().max(Number.MAX_SAFE_INTEGER).optional(),
   })
   .strict();
 

@@ -39,4 +39,21 @@ describe("buildConfirmationEmail", () => {
       "Lieu : Grande salle, Paris",
     );
   });
+
+  it("indique le tarif choisi, le prix unitaire et le total quand un tarif est fourni", () => {
+    const body = buildConfirmationEmail({
+      ...base,
+      seats: 2,
+      priceLabel: "Réduit",
+      priceAmountCents: 1200,
+    }).body;
+    // NB : Intl fr-FR insère une espace insécable avant « € » (U+202F).
+    const normalized = body.replace(/[\u00a0\u202f]/g, " ");
+    expect(normalized).toContain("Tarif : Réduit (12,00 € / place)");
+    expect(normalized).toContain("Total : 24,00 € (2 places × 12,00 €)");
+  });
+
+  it("n'indique aucun tarif quand aucun n'est fourni", () => {
+    expect(buildConfirmationEmail(base).body).not.toContain("Tarif :");
+  });
 });

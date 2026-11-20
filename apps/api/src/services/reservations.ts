@@ -1,11 +1,18 @@
 import type { Pool, PoolClient } from "pg";
 import { withTransaction } from "../db/transaction.js";
 import { buildConfirmationEmail } from "../domain/email.js";
+import { ValidationError } from "../domain/errors.js";
 import {
   IdempotencyKeyReuseError,
   InsufficientSeatsError,
   NotFoundError,
 } from "../domain/errors.js";
+
+export interface ReservationPriceDto {
+  id: number;
+  label: string;
+  amountCents: number;
+}
 
 export interface ReservationInput {
   eventId: number;
@@ -13,6 +20,8 @@ export interface ReservationInput {
   customerName: string;
   customerEmail: string;
   seats: number;
+  /** Tarif choisi (event_prices.id) : doit appartenir à l'événement. */
+  priceId?: number;
 }
 
 export interface ReservationDto {
@@ -21,6 +30,8 @@ export interface ReservationDto {
   customerName: string;
   customerEmail: string;
   seats: number;
+  /** Tarif choisi à la réservation, s'il y en a un. */
+  price: ReservationPriceDto | null;
   status: "confirmed" | "cancelled";
   createdAt: string;
 }
@@ -37,6 +48,9 @@ interface ReservationRow {
   customer_name: string;
   customer_email: string;
   seats: number;
+  price_id: number | null;
+  price_label: string | null;
+  price_amount_cents: number | null;
   status: "confirmed" | "cancelled";
   created_at: Date;
 }
@@ -50,9 +64,30 @@ function toDto(row: ReservationRow): ReservationDto {
     customerName: row.customer_name,
     customerEmail: row.customer_email,
     seats: row.seats,
+    price:
+      row.price_id !== null && row.price_label !== null
+        ? {
+            id: row.price_id,
+            label: row.price_label,
+            amountCents: row.price_amount_cents ?? 0,
+          }
+        : null,
     status: row.status,
     createdAt: row.created_at.toISOString(),
   };
+}
+
+/** Charge une réservation avec son tarif (LEFT JOIN event_prices). */
+const SELECT_WITH_PRICE = `SELECT r.*, p.label AS price_label, p.amount_cents AS price_amount_cents
+  FROM reservations r LEFT JOIN event_prices p ON p.id = r.price_id`;
+
+async function fetchReservation(
+  client: PoolClient,
+  where: string,
+  params: unknown[],
+): Promise<ReservationRow | undefined> {
+  const { rows } = await client.query<ReservationRow>(`${SELECT_WITH_PRICE} WHERE ${where}`, params);
+  return rows[0];
 }
 
 function sameRequest(row: ReservationRow, input: ReservationInput): boolean {
@@ -60,7 +95,8 @@ function sameRequest(row: ReservationRow, input: ReservationInput): boolean {
     row.event_id === input.eventId &&
     row.customer_name === input.customerName &&
     row.customer_email === input.customerEmail &&
-    row.seats === input.seats
+    row.seats === input.seats &&
+    row.price_id === (input.priceId ?? null)
   );
 }
 
@@ -81,20 +117,34 @@ export async function reserve(
   input: ReservationInput,
 ): Promise<ReservationResult> {
   return withTransaction(pool, async (client) => {
+    // Le tarif, s'il est fourni, doit appartenir à l'événement demandé.
+    if (input.priceId !== undefined) {
+      const { rowCount } = await client.query(
+        "SELECT 1 FROM event_prices WHERE id = $1 AND event_id = $2",
+        [input.priceId, input.eventId],
+      );
+      if (rowCount === 0) {
+        throw new ValidationError([
+          { path: "priceId", message: "Tarif inconnu pour cet événement" },
+        ]);
+      }
+    }
+
     const inserted = await insertReservation(client, input);
 
     if (!inserted) {
       // Clé déjà connue : la ligne existante est commitée (l'INSERT a attendu si une autre
       // transaction la détenait encore). On la renvoie si, et seulement si, la demande est identique.
-      const existing = await client.query<ReservationRow>(
-        "SELECT * FROM reservations WHERE idempotency_key = $1",
-        [input.idempotencyKey],
-      );
-      const row = existing.rows[0];
+      const row = await fetchReservation(client, "r.idempotency_key = $1", [
+        input.idempotencyKey,
+      ]);
       if (!row || !sameRequest(row, input))
         throw new IdempotencyKeyReuseError();
       return { reservation: toDto(row), replayed: true };
     }
+
+    const created = await fetchReservation(client, "r.id = $1", [inserted.id]);
+    if (created) Object.assign(inserted, created);
 
     const updated = await client.query<{
       name: string;
@@ -111,6 +161,13 @@ export async function reserve(
     // Lever l'erreur annule la transaction, donc la réservation insérée à l'étape 1.
     if (!event) throw new InsufficientSeatsError();
 
+    const price =
+      inserted.price_id !== null
+        ? {
+            label: inserted.price_label ?? "",
+            amountCents: inserted.price_amount_cents ?? 0,
+          }
+        : undefined;
     const email = buildConfirmationEmail({
       customerName: input.customerName,
       eventName: event.name,
@@ -118,6 +175,8 @@ export async function reserve(
       startsAt: event.starts_at,
       seats: input.seats,
       reservationId: inserted.id,
+      priceLabel: price?.label,
+      priceAmountCents: price?.amountCents,
     });
     await client.query(
       "INSERT INTO email_outbox (reservation_id, recipient, subject, body) VALUES ($1, $2, $3, $4)",
@@ -135,8 +194,8 @@ async function insertReservation(
 ): Promise<ReservationRow | null> {
   try {
     const { rows } = await client.query<ReservationRow>(
-      `INSERT INTO reservations (event_id, idempotency_key, customer_name, customer_email, seats)
-       VALUES ($1, $2, $3, $4, $5)
+      `INSERT INTO reservations (event_id, idempotency_key, customer_name, customer_email, seats, price_id)
+       VALUES ($1, $2, $3, $4, $5, $6)
        ON CONFLICT (idempotency_key) DO NOTHING
        RETURNING *`,
       [
@@ -145,6 +204,7 @@ async function insertReservation(
         input.customerName,
         input.customerEmail,
         input.seats,
+        input.priceId ?? null,
       ],
     );
     return rows[0] ?? null;

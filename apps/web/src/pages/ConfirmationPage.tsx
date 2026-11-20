@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import type { EventItem, Reservation } from "../api";
-import { formatDate } from "../format";
+import { formatDate, formatPrice } from "../format";
 
 interface ConfirmationState {
   reservation: Reservation;
@@ -85,6 +85,19 @@ export function ConfirmationPage() {
             ? `${reservation.seats} places`
             : "1 place"}
         </dd>
+        {reservation.price && (
+          <>
+            <dt>Tarif</dt>
+            <dd>
+              {reservation.price.label} —{" "}
+              {formatPrice(reservation.price.amountCents)} / place
+            </dd>
+            <dt>Total</dt>
+            <dd className="total">
+              {formatPrice(reservation.price.amountCents * reservation.seats)}
+            </dd>
+          </>
+        )}
         <dt>Nom</dt>
         <dd>{reservation.customerName}</dd>
         <dt>E-mail</dt>

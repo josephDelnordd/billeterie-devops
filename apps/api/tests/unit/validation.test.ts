@@ -29,6 +29,11 @@ describe("reservationBodySchema", () => {
     expect(parsed.customerEmail).toBe("ada@example.com");
   });
 
+  it("accepte un priceId optionnel valide", () => {
+    const parsed = parseOrThrow(reservationBodySchema, { ...valid, priceId: 42 });
+    expect(parsed.priceId).toBe(42);
+  });
+
   it.each([
     ["0 place", { seats: 0 }],
     ["nombre de places négatif", { seats: -1 }],
@@ -37,6 +42,9 @@ describe("reservationBodySchema", () => {
     ["places sous forme de chaîne", { seats: "2" }],
     ["nom vide", { customerName: "   " }],
     ["e-mail invalide", { customerEmail: "pas-un-email" }],
+    ["priceId nul", { priceId: 0 }],
+    ["priceId sous forme de chaîne", { priceId: "42" }],
+    ["priceId décimal", { priceId: 1.5 }],
   ])("refuse : %s", (_label, override) => {
     expect(() =>
       parseOrThrow(reservationBodySchema, { ...valid, ...override }),

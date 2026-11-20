@@ -49,6 +49,7 @@ export function Layout() {
               Accueil
             </NavLink>
             <NavLink to="/evenements">Événements</NavLink>
+            <NavLink to="/tarifs">Tarifs</NavLink>
             <NavLink to="/a-propos">À propos</NavLink>
             <NavLink to="/contact">Contact</NavLink>
           </nav>

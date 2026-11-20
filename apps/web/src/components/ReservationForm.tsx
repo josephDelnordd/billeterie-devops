@@ -4,7 +4,7 @@ import {
   type EventItem,
   type ReservationOutcome,
 } from "../api";
-import { newIdempotencyKey } from "../format";
+import { formatPrice, newIdempotencyKey } from "../format";
 import { messageFor } from "../userError";
 
 const MAX_SEATS = 10;
@@ -19,6 +19,8 @@ export function ReservationForm({ event, onReserved, onCancel }: Props) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [seats, setSeats] = useState(1);
+  // Tarif choisi : premier tarif de l'événement par défaut.
+  const [priceId, setPriceId] = useState<number | undefined>(event.prices[0]?.id);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -40,7 +42,12 @@ export function ReservationForm({ event, onReserved, onCancel }: Props) {
     try {
       const outcome = await createReservation(
         event.id,
-        { customerName: name.trim(), customerEmail: email.trim(), seats },
+        {
+          customerName: name.trim(),
+          customerEmail: email.trim(),
+          seats,
+          ...(priceId !== undefined ? { priceId } : {}),
+        },
         keyRef.current,
       );
       onReserved(outcome);
@@ -102,6 +109,33 @@ export function ReservationForm({ event, onReserved, onCancel }: Props) {
           }}
         />
       </label>
+
+      {event.prices.length > 0 && (
+        <fieldset className="tarif-field">
+          <legend>Tarif</legend>
+          <div className="tarif-list">
+            {event.prices.map((price) => (
+              <label key={price.id} className="tarif-option">
+                <input
+                  type="radio"
+                  name="tarif"
+                  value={price.id}
+                  checked={priceId === price.id}
+                  required
+                  onChange={() => {
+                    setPriceId(price.id);
+                    resetKey();
+                  }}
+                />
+                <span className="tarif-label">{price.label}</span>
+                <strong className="tarif-price">
+                  {formatPrice(price.amountCents)}
+                </strong>
+              </label>
+            ))}
+          </div>
+        </fieldset>
+      )}
 
       {error && (
         <p role="alert" className="error">

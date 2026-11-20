@@ -12,8 +12,8 @@ const concert: EventItem = {
   description: "Orchestre symphonique",
   longDescription: "Programme romantique.\n\nPrécédé d'une présentation à 19 h 30.",
   prices: [
-    { label: "Plein tarif", amountCents: 3200 },
-    { label: "Réduit", amountCents: 2400 },
+    { id: 1, label: "Plein tarif", amountCents: 3200 },
+    { id: 2, label: "Réduit", amountCents: 2400 },
   ],
   venue: "Grande salle",
   category: "musique",
@@ -68,6 +68,7 @@ const reservationResponse = {
   customerName: "Ada",
   customerEmail: "ada@example.com",
   seats: 2,
+  price: { id: 1, label: "Plein tarif", amountCents: 3200 },
   status: "confirmed",
   createdAt: future,
 };
@@ -235,7 +236,9 @@ describe("page de détail (/evenements/:id)", () => {
     expect(screen.getByText(/Orchestre symphonique/)).toBeInTheDocument();
     expect(screen.getByText(/150 places restantes/)).toBeInTheDocument();
     // Tarifs de l'événement (plusieurs prix par catégorie de billet).
-    expect(screen.getByText("Tarifs")).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "Tarifs" }),
+    ).toBeInTheDocument();
     expect(screen.getByText("Plein tarif")).toBeInTheDocument();
     expect(screen.getByText(/32,00/)).toBeInTheDocument();
     expect(screen.getByText(/24,00/)).toBeInTheDocument();
@@ -294,6 +297,9 @@ describe("page de réservation (/evenements/:id/reserver)", () => {
     expect(status).toHaveTextContent("Concert de printemps");
     expect(status).toHaveTextContent("ada@example.com");
     expect(screen.getByText("2 places")).toBeInTheDocument();
+    // Tarif choisi à la réservation + total (2 × 32,00 €).
+    expect(status).toHaveTextContent("Plein tarif");
+    expect(screen.getByText(/64,00/)).toBeInTheDocument();
     expect(
       screen.getByRole("link", { name: "Retour aux événements" }),
     ).toHaveAttribute("href", "/evenements");
@@ -304,7 +310,30 @@ describe("page de réservation (/evenements/:id/reserver)", () => {
       customerName: "Ada",
       customerEmail: "ada@example.com",
       seats: 2,
+      priceId: 1,
     });
+  });
+
+  it("propose les tarifs de l'événement et envoie le tarif choisi", async () => {
+    const api = mockCatalogue();
+    const user = userEvent.setup();
+    renderApp(["/evenements/1/reserver"]);
+
+    // Radios de tarif avec prix formatés.
+    expect(
+      await screen.findByRole("radio", { name: /Plein tarif/ }),
+    ).toBeChecked();
+    expect(screen.getByRole("radio", { name: /Réduit/ })).not.toBeChecked();
+    expect(screen.getByText(/32,00/)).toBeInTheDocument();
+    expect(screen.getByText(/24,00/)).toBeInTheDocument();
+
+    await fillForm(user);
+    await user.click(screen.getByRole("radio", { name: /Réduit/ }));
+    await user.click(screen.getByRole("button", { name: "Réserver" }));
+
+    await screen.findByRole("status");
+    const [, init] = api.mock.calls.find((c) => c[1]?.method === "POST")!;
+    expect(JSON.parse(init!.body as string)).toMatchObject({ priceId: 2 });
   });
 
   it("signale « déjà enregistrée » quand l'API rejoue la demande (200)", async () => {
@@ -468,6 +497,21 @@ describe("pages statiques", () => {
       await screen.findByRole("heading", { level: 1, name: "Contact" }),
     ).toBeInTheDocument();
     expect(screen.getByText("bonjour@placelibre.example")).toBeInTheDocument();
+  });
+
+  it("la page Tarifs explique la politique de prix", async () => {
+    renderApp(["/tarifs"]);
+    expect(
+      await screen.findByRole("heading", {
+        level: 1,
+        name: "Nos tarifs, en toute transparence",
+      }),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Plein tarif")).toBeInTheDocument();
+    expect(screen.getByText("Tarifs réduits")).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: "Voir les événements" }),
+    ).toHaveAttribute("href", "/evenements");
   });
 });
 

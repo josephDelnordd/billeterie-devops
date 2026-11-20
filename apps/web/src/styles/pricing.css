@@ -1,0 +1,92 @@
+/* ==========================================================================
+   PlaceLibre — page des tarifs (/tarifs) : politique de prix en cartes
+   ========================================================================== */
+
+/* Intro en pleine largeur, comme sur la page À propos. */
+.page-static p.page-lead {
+  max-width: none;
+  font-size: 1.08rem;
+}
+
+/* Grille de cartes des catégories de billets. */
+.tariff-grid {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  margin: 18px 0 6px;
+}
+
+.page-static .tariff-card {
+  display: grid;
+  gap: 10px;
+  align-content: start;
+  padding: 22px clamp(18px, 3vw, 26px) 24px;
+  transition: transform 0.2s ease, box-shadow 0.25s ease;
+}
+
+.page-static .tariff-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+.page-static .tariff-card h2 {
+  margin: 0;
+  font-size: 1.15rem;
+  color: var(--ink);
+}
+
+.page-static .tariff-card p {
+  margin: 0;
+}
+
+/* Vignette d'icône en dégradé, comme sur la page À propos. */
+.tariff-icon {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 13px;
+  background: var(--gradient);
+  color: #fff;
+  box-shadow: 0 6px 14px rgb(124 58 237 / 38%);
+}
+
+.tariff-icon svg {
+  width: 23px;
+  height: 23px;
+}
+
+/* Carte exemple de calcul de total. */
+.tariff-example {
+  margin-top: 14px;
+  padding: 18px 22px;
+  border: 1px solid rgb(124 58 237 / 18%);
+  background:
+    radial-gradient(24rem 10rem at 100% 0%, rgb(217 70 239 / 8%), transparent 70%),
+    #fbfaff;
+}
+
+.tariff-example p {
+  margin: 0;
+}
+
+.tariff-total {
+  font-family: var(--font-display);
+  background: var(--gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* CTA final centré en pleine largeur. */
+.page-static p.page-cta {
+  max-width: none;
+  margin: 28px 0 0;
+  text-align: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-static .tariff-card:hover {
+    transform: none;
+  }
+}

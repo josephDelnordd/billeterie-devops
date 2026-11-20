@@ -33,3 +33,13 @@
   width: 34px;
   height: 34px;
 }
+
+/* Total de la réservation (places × tarif choisi). */
+.summary dd.total {
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  background: var(--gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}

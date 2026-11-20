@@ -48,6 +48,7 @@ L'application web est une SPA multi-pages (React Router, fallback nginx/Vite) :
 - `/evenements/:id` — page de détail d'un événement ;
 - `/evenements/:id/reserver` — formulaire de réservation (idempotent) ;
 - `/confirmation` — récapitulatif après réservation ;
+- `/tarifs` — politique de prix (catégories de billets, comment choisir son tarif) ;
 - `/a-propos` — page statique ;
 - `/contact` — formulaire de contact (envoyé à la boîte de support, visible dans Mailpit).
 
@@ -69,7 +70,7 @@ L'application web est une SPA multi-pages (React Router, fallback nginx/Vite) :
 | --- | --- | --- |
 | `GET /events` | 200 | Événements à venir avec catégorie, tarifs (plusieurs prix par catégorie de billet) et places restantes (`?category=musique` pour filtrer) |
 | `GET /events/:id` | 200, 404 | Détail d'un événement, avec sa liste de tarifs |
-| `POST /events/:id/reservations` | 201, 200 (rejeu), 400, 404, 409, 422, 429 | Réserve des places ; en-tête `Idempotency-Key` obligatoire |
+| `POST /events/:id/reservations` | 201, 200 (rejeu), 400, 404, 409, 422, 429 | Réserve des places, avec `priceId` optionnel (tarif de l'événement) ; en-tête `Idempotency-Key` obligatoire |
 | `POST /contact` | 201, 400, 429 | Message du formulaire de contact, déposé dans la boîte d'envoi (reçu par Mailpit en local) |
 | `GET /health/live` | 200 | Le processus répond (sonde liveness) |
 | `GET /health/ready` | 200, 503 | La base répond (sonde readiness) |

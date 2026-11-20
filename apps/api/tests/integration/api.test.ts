@@ -99,8 +99,8 @@ describe("GET /events/:id", () => {
     const response = await app.inject(`/events/${id}`);
     expect(response.statusCode).toBe(200);
     expect(response.json().prices).toEqual([
-      { label: "Plein tarif", amountCents: 2200 },
-      { label: "Réduit", amountCents: 1500 },
+      expect.objectContaining({ label: "Plein tarif", amountCents: 2200 }),
+      expect.objectContaining({ label: "Réduit", amountCents: 1500 }),
     ]);
   });
 
@@ -121,6 +121,39 @@ describe("POST /events/:id/reservations", () => {
       status: "confirmed",
     });
     expect((await app.inject(`/events/${id}`)).json().remaining).toBe(8);
+  });
+
+  it("accepte un tarif (priceId) appartenant à l’événement et le renvoie", async () => {
+    const id = await createEvent(db.pool, 10);
+    const { rows } = await db.pool.query<{ id: number }>(
+      "INSERT INTO event_prices (event_id, label, amount_cents, position) VALUES ($1, 'Réduit', 1200, 1) RETURNING id",
+      [id],
+    );
+    const response = await post(id, "cle-prix-0001", {
+      ...payload,
+      priceId: rows[0]!.id,
+    });
+    expect(response.statusCode).toBe(201);
+    expect(response.json().price).toEqual({
+      id: rows[0]!.id,
+      label: "Réduit",
+      amountCents: 1200,
+    });
+  });
+
+  it("répond 400 pour un tarif qui n’appartient pas à l’événement", async () => {
+    const id = await createEvent(db.pool, 10);
+    const otherId = await createEvent(db.pool, 10, "Autre");
+    const { rows } = await db.pool.query<{ id: number }>(
+      "INSERT INTO event_prices (event_id, label, amount_cents) VALUES ($1, 'Plein tarif', 1800) RETURNING id",
+      [otherId],
+    );
+    const response = await post(id, "cle-prix-0002", {
+      ...payload,
+      priceId: rows[0]!.id,
+    });
+    expect(response.statusCode).toBe(400);
+    expect(response.json().code).toBe("VALIDATION_ERROR");
   });
 
   it("répond 200 (et non 201) pour un rejeu, avec la même réservation", async () => {

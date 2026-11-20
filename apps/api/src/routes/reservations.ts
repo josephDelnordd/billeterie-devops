@@ -41,6 +41,7 @@ export function reservationRoutes(
           customerName: body.customerName,
           customerEmail: body.customerEmail,
           seats: body.seats,
+          priceId: body.priceId,
         });
         metrics.reservations.inc({
           outcome: result.replayed ? "replayed" : "confirmed",
