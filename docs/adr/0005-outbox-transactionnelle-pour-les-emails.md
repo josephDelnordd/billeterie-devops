@@ -30,3 +30,7 @@ Utiliser le modèle **transactional outbox** avec PostgreSQL :
 - La table `email_outbox` grossit ; une purge des messages `sent` anciens devra être ajoutée avant une mise en production réelle.
 - Le worker peut être mis à l'échelle (KEDA sur le nombre de lignes `pending`) lors de l'étape de déploiement Kubernetes.
 - Si la charge dépassait un jour les capacités de PostgreSQL pour ce rôle, la table pourra être remplacée par une vraie file sans changer le contrat de l'API.
+
+## Évolution (2026-11-20)
+
+La migration `003` rend `email_outbox.reservation_id` nullable : la même boîte d'envoi transporte aussi les **messages du formulaire de contact** (`POST /contact`, envoyés à la boîte de support, `CONTACT_EMAIL`), qui ne sont rattachés à aucune réservation. Le worker envoie ces messages sans réservation associée.

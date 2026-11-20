@@ -35,7 +35,7 @@ La commande crée `.env` depuis `.env.example` si besoin, construit les images, 
 | --- | --- | --- |
 | Application web | http://localhost:8080 | Catalogue et réservation |
 | Mailpit | http://localhost:8025 | Boîte de réception des e-mails (persistée dans un volume Docker : elle survit à `make down` et n'est vidée que par `make clean`) |
-| API | http://localhost:3000 | Accès direct, utile pour `curl` et les métriques |
+| API | http://localhost:3000 | Accès direct, utile pour `curl` et les métriques (port configurable via `API_PORT` dans `.env`, ex. `3001` si 3000 est occupé) |
 
 Pour arrêter : `make down` (données conservées) ou `make clean` (données supprimées).
 
@@ -52,7 +52,7 @@ L'application web est une SPA multi-pages (React Router, fallback nginx/Vite) :
 - `/a-propos` — page statique ;
 - `/contact` — formulaire de contact (envoyé à la boîte de support, visible dans Mailpit).
 
-1. Ouvrir http://localhost:8080, choisir un événement et réserver des places.
+1. Ouvrir http://localhost:8080, choisir un événement, sélectionner un tarif sur la page de réservation, puis réserver des places (le récapitulatif et l'e-mail indiquent le tarif choisi et le total).
 2. Ouvrir http://localhost:8025 : l'e-mail de confirmation y apparaît en quelques secondes.
 3. Réserver la dernière place de la « Soirée jazz intimiste » : elle passe en « Complet ».
 
@@ -82,10 +82,10 @@ Exemple :
 curl -X POST http://localhost:8080/api/events/1/reservations \
   -H 'Content-Type: application/json' \
   -H "Idempotency-Key: $(uuidgen)" \
-  -d '{"customerName":"Ada","customerEmail":"ada@example.com","seats":2}'
+  -d '{"customerName":"Ada","customerEmail":"ada@example.com","seats":2,"priceId":1}'
 ```
 
-Rejouer la même requête avec la même clé renvoie `200` et la réservation d'origine, sans consommer de place supplémentaire. Le choix de PostgreSQL comme source de vérité est expliqué dans l'[ADR 0003](docs/adr/0003-postgresql-source-de-verite.md), celui de la boîte d'envoi dans l'[ADR 0005](docs/adr/0005-outbox-transactionnelle-pour-les-emails.md).
+Rejouer la même requête avec la même clé renvoie `200` et la réservation d'origine, sans consommer de place supplémentaire. Les tarifs par événement (plusieurs prix, montants en centimes, tarif choisi à la réservation) sont décrits dans l'[ADR 0006](docs/adr/0006-tarifs-par-evenement.md). Le choix de PostgreSQL comme source de vérité est expliqué dans l'[ADR 0003](docs/adr/0003-postgresql-source-de-verite.md), celui de la boîte d'envoi dans l'[ADR 0005](docs/adr/0005-outbox-transactionnelle-pour-les-emails.md).
 
 ## Tests
 
