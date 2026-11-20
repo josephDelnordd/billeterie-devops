@@ -103,13 +103,13 @@ export function AboutPage() {
     <article className="card page-static" ref={rootRef}>
       <p className="kicker reveal">Notre histoire</p>
       <h1 className="reveal d1">À propos de PlaceLibre</h1>
-      <p className="reveal d2">
+      <p className="reveal d2 about-lead">
         PlaceLibre est né à Lyon en 2019, d'une idée simple partagée entre trois
         amis passionnés de culture et de sport : réserver une place pour un
         concert, un match ou une exposition devrait être aussi simple — et aussi
         rassurant — qu'acheter un billet de cinéma.
       </p>
-      <p className="reveal d3">
+      <p className="reveal d3 about-lead">
         Parti d'un petit carnet d'adresses d'événements locaux, le projet est
         devenu une billetterie à part entière : des centaines de salles, de
         théâtres et de stades partenaires, une réservation en quelques clics et

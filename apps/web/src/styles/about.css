@@ -149,9 +149,16 @@
   height: 23px;
 }
 
-/* CTA final centré sous la grille de cartes. */
-.about-cta {
-  margin-top: 28px;
+/* Intro : les paragraphes d'histoire s'étendent sur toute la largeur de la carte. */
+.page-static p.about-lead {
+  max-width: none;
+  font-size: 1.08rem;
+}
+
+/* CTA final : pleine largeur pour centrer le bouton dans toute la page. */
+.page-static p.about-cta {
+  max-width: none;
+  margin: 28px 0 0;
   text-align: center;
 }
 
