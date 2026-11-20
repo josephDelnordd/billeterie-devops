@@ -1,11 +1,19 @@
 import type { Category } from "./categories";
 
+/** Un tarif d'événement (catégorie de billet), montant en centimes. */
+export interface EventPrice {
+  label: string;
+  amountCents: number;
+}
+
 export interface EventItem {
   id: number;
   name: string;
   description: string;
   /** Texte détaillé de la page événement (paragraphes séparés par une ligne vide). */
   longDescription: string;
+  /** Tarifs de l'événement (plein tarif, réduit…), triés par position. */
+  prices: EventPrice[];
   venue: string;
   category: Category;
   startsAt: string;

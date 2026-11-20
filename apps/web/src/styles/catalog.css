@@ -237,6 +237,14 @@ button.chip:hover:not(:disabled) {
   overflow: hidden;
 }
 
+/* Prix le plus bas affiché sur la carte (« dès X € »). */
+.card-price {
+  margin: 0;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--ink);
+}
+
 .card-foot {
   display: grid;
   gap: 10px;

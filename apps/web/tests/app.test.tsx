@@ -11,6 +11,10 @@ const concert: EventItem = {
   name: "Concert de printemps",
   description: "Orchestre symphonique",
   longDescription: "Programme romantique.\n\nPrécédé d'une présentation à 19 h 30.",
+  prices: [
+    { label: "Plein tarif", amountCents: 3200 },
+    { label: "Réduit", amountCents: 2400 },
+  ],
   venue: "Grande salle",
   category: "musique",
   startsAt: future,
@@ -230,6 +234,11 @@ describe("page de détail (/evenements/:id)", () => {
     expect(screen.getByText("Musique")).toBeInTheDocument();
     expect(screen.getByText(/Orchestre symphonique/)).toBeInTheDocument();
     expect(screen.getByText(/150 places restantes/)).toBeInTheDocument();
+    // Tarifs de l'événement (plusieurs prix par catégorie de billet).
+    expect(screen.getByText("Tarifs")).toBeInTheDocument();
+    expect(screen.getByText("Plein tarif")).toBeInTheDocument();
+    expect(screen.getByText(/32,00/)).toBeInTheDocument();
+    expect(screen.getByText(/24,00/)).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Réserver" })).toHaveAttribute(
       "href",
       "/evenements/1/reserver",

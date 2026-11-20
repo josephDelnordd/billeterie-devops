@@ -2,7 +2,12 @@ import { useCallback, useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { ApiError, fetchEvent, type EventItem } from "../api";
 import { categoryLabel } from "../categories";
-import { availabilityLabel, availabilityOf, formatDate } from "../format";
+import {
+  availabilityLabel,
+  availabilityOf,
+  formatDate,
+  formatPrice,
+} from "../format";
 import { AvailabilityMeter } from "../components/AvailabilityMeter";
 import { CategoryIcon } from "../components/CategoryIcon";
 
@@ -100,6 +105,19 @@ export function EventPage() {
                   <p key={index}>{paragraph}</p>
                 ))}
               </div>
+            </>
+          )}
+          {event.prices.length > 0 && (
+            <>
+              <h2 className="detail-section-title">Tarifs</h2>
+              <ul className="price-list">
+                {event.prices.map((price) => (
+                  <li key={price.label}>
+                    <span>{price.label}</span>
+                    <strong>{formatPrice(price.amountCents)}</strong>
+                  </li>
+                ))}
+              </ul>
             </>
           )}
           <div className="detail-availability">

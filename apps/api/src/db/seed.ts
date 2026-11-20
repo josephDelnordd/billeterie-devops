@@ -69,5 +69,36 @@ Le billet est valable toute la journée et donne accès à tous les concerts de 
        'Parc des expos, Lille', 'musique', interval '60 days', 1000, 1000)
     ) AS v(name, description, long_description, venue, category, starts_in, capacity, remaining)
     WHERE NOT EXISTS (SELECT 1 FROM events)`);
+
+  // Plusieurs tarifs par événement (catégories de billets), en centimes.
+  await pool.query(`
+    INSERT INTO event_prices (event_id, label, amount_cents, position)
+    SELECT e.id, v.label, v.amount_cents, v.position
+    FROM events e
+    JOIN (VALUES
+      ('Exposition Monet',            'Plein tarif', 1800, 1),
+      ('Exposition Monet',            'Réduit (étudiants, demandeurs d''emploi)', 1200, 2),
+      ('Exposition Monet',            'Moins de 26 ans', 900, 3),
+      ('Stand-up « Nouvelles voix »', 'Plein tarif', 2200, 1),
+      ('Stand-up « Nouvelles voix »', 'Réduit', 1600, 2),
+      ('Soirée jazz intimiste',       'Plein tarif', 2500, 1),
+      ('Soirée jazz intimiste',       'Réduit', 1800, 2),
+      ('Match de gala',               'Tribune', 3500, 1),
+      ('Match de gala',               'Pelouse', 2500, 2),
+      ('Match de gala',               'Moins de 12 ans', 1500, 3),
+      ('Concert électro « Warehouse »', 'Plein tarif', 4500, 1),
+      ('Concert électro « Warehouse »', 'Membre', 3800, 2),
+      ('Le Misanthrope',              'Plein tarif', 2800, 1),
+      ('Le Misanthrope',              'Réduit', 1900, 2),
+      ('Concert de printemps',        'Plein tarif', 3200, 1),
+      ('Concert de printemps',        'Réduit', 2400, 2),
+      ('Opéra : La Traviata',         'Catégorie 1', 8500, 1),
+      ('Opéra : La Traviata',         'Catégorie 2', 5500, 2),
+      ('Opéra : La Traviata',         '25 ans et moins', 3000, 3),
+      ('Festival ouverture',          'Journée', 4900, 1),
+      ('Festival ouverture',          'Prévente', 3900, 2)
+    ) AS v(name, label, amount_cents, position) ON e.name = v.name
+    WHERE NOT EXISTS (SELECT 1 FROM event_prices)`);
+
   return result.rowCount ?? 0;
 }

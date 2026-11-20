@@ -29,6 +29,7 @@ describe("migrations", () => {
       { name: "002_events_category.sql" },
       { name: "003_contact_outbox.sql" },
       { name: "004_events_long_description.sql" },
+      { name: "005_event_prices.sql" },
     ]);
   });
 });

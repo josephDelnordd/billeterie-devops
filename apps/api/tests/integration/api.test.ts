@@ -90,6 +90,20 @@ describe("GET /events/:id", () => {
     expect(response.json()).toMatchObject({ id, name: "Théâtre" });
   });
 
+  it("retourne les tarifs de l’événement (plusieurs prix par catégorie de billet)", async () => {
+    const id = await createEvent(db.pool, 10, "Concert");
+    await db.pool.query(
+      "INSERT INTO event_prices (event_id, label, amount_cents, position) VALUES ($1, 'Plein tarif', 2200, 1), ($1, 'Réduit', 1500, 2)",
+      [id],
+    );
+    const response = await app.inject(`/events/${id}`);
+    expect(response.statusCode).toBe(200);
+    expect(response.json().prices).toEqual([
+      { label: "Plein tarif", amountCents: 2200 },
+      { label: "Réduit", amountCents: 1500 },
+    ]);
+  });
+
   it("répond 404 pour un événement inexistant", async () => {
     expect((await app.inject("/events/123456")).statusCode).toBe(404);
   });

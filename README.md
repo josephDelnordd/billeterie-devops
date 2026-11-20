@@ -67,8 +67,8 @@ L'application web est une SPA multi-pages (React Router, fallback nginx/Vite) :
 
 | Méthode et chemin | Réponses | Description |
 | --- | --- | --- |
-| `GET /events` | 200 | Événements à venir avec catégorie et places restantes (`?category=musique` pour filtrer) |
-| `GET /events/:id` | 200, 404 | Détail d'un événement |
+| `GET /events` | 200 | Événements à venir avec catégorie, tarifs (plusieurs prix par catégorie de billet) et places restantes (`?category=musique` pour filtrer) |
+| `GET /events/:id` | 200, 404 | Détail d'un événement, avec sa liste de tarifs |
 | `POST /events/:id/reservations` | 201, 200 (rejeu), 400, 404, 409, 422, 429 | Réserve des places ; en-tête `Idempotency-Key` obligatoire |
 | `POST /contact` | 201, 400, 429 | Message du formulaire de contact, déposé dans la boîte d'envoi (reçu par Mailpit en local) |
 | `GET /health/live` | 200 | Le processus répond (sonde liveness) |

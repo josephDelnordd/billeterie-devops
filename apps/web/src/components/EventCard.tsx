@@ -1,7 +1,13 @@
 import { Link } from "react-router-dom";
 import type { EventItem } from "../api";
 import { categoryLabel } from "../categories";
-import { availabilityLabel, availabilityOf, formatDate } from "../format";
+import {
+  availabilityLabel,
+  availabilityOf,
+  formatDate,
+  formatPrice,
+  lowestPriceCents,
+} from "../format";
 import { AvailabilityMeter } from "./AvailabilityMeter";
 import { CategoryIcon } from "./CategoryIcon";
 
@@ -11,6 +17,7 @@ interface Props {
 
 export function EventCard({ event }: Props) {
   const state = availabilityOf(event.remaining, event.capacity);
+  const lowest = lowestPriceCents(event.prices);
 
   return (
     <article className={`card event-card cat-${event.category}`} aria-label={event.name}>
@@ -28,6 +35,9 @@ export function EventCard({ event }: Props) {
         </p>
         {event.description && <p className="card-desc">{event.description}</p>}
         <div className="card-foot">
+          {lowest !== null && (
+            <p className="card-price">dès {formatPrice(lowest)}</p>
+          )}
           <p className={`availability ${state}`}>
             {availabilityLabel(event.remaining, event.capacity)}
           </p>

@@ -32,3 +32,19 @@ export function availabilityLabel(remaining: number, capacity: number): string {
 export function newIdempotencyKey(): string {
   return crypto.randomUUID();
 }
+
+/** Formate un montant en centimes en euros (ex. 2200 -> « 22,00 € »). */
+export function formatPrice(amountCents: number): string {
+  return new Intl.NumberFormat("fr-FR", {
+    style: "currency",
+    currency: "EUR",
+  }).format(amountCents / 100);
+}
+
+/** Prix le plus bas d'un événement (« dès X € » sur les cartes), ou null s'il n'y a aucun tarif. */
+export function lowestPriceCents(
+  prices: ReadonlyArray<{ amountCents: number }>,
+): number | null {
+  if (prices.length === 0) return null;
+  return Math.min(...prices.map((price) => price.amountCents));
+}

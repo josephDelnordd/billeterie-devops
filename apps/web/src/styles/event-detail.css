@@ -83,6 +83,41 @@
   color: var(--text);
 }
 
+/* Liste des tarifs : lignes label + prix en dégradé. */
+.price-list {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  max-width: 420px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow: hidden;
+  background: #fbfaff;
+}
+
+.price-list li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 10px 16px;
+  font-weight: 600;
+}
+
+.price-list li + li {
+  border-top: 1px solid var(--border);
+}
+
+.price-list strong {
+  font-family: var(--font-display);
+  white-space: nowrap;
+  background: var(--gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
 .detail-availability {
   display: grid;
   gap: 8px;
