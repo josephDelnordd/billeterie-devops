@@ -4,7 +4,7 @@ Ces réglages doivent être appliqués sur le dépôt distant par un administrat
 
 ## Création du dépôt
 
-1. Créer un dépôt GitHub nommé `billetterie-devops` (ou le nom retenu par l'équipe).
+1. Le dépôt utilisé par le projet est `josephDelnordd/billeterie-devops`.
 2. Choisir public/privé selon les consignes du cours ; ne pas ajouter de README, `.gitignore` ou licence générés si le dépôt local contient déjà ces fichiers.
 3. Ajouter les membres et leur accorder le rôle minimal nécessaire.
 4. Depuis ce dossier, initialiser le dépôt local si ce n'est pas déjà fait, puis ajouter le remote et pousser `main` :
