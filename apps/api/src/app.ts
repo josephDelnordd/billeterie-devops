@@ -62,6 +62,23 @@ export async function buildApp(
     reply.code(404).send({ code: "NOT_FOUND", message: "Route introuvable" }),
   );
 
+  // Point d'entrée lisible pour un humain (ou un curl) qui ouvre la racine du port API :
+  // au lieu d'un 404 brut, on liste les routes disponibles.
+  app.get("/", async () => ({
+    service: "billetterie-api",
+    description:
+      "API de réservation de places — l'interface web est servie séparément (http://localhost:8080 en local)",
+    endpoints: [
+      "GET /events",
+      "GET /events/:id",
+      "POST /events/:id/reservations",
+      "POST /contact",
+      "GET /health/live",
+      "GET /health/ready",
+      "GET /metrics",
+    ],
+  }));
+
   await app.register(healthRoutes(pool, metrics));
   await app.register(eventRoutes(pool));
   await app.register(reservationRoutes(pool, config, metrics));

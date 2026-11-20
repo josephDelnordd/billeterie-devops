@@ -67,6 +67,7 @@ L'application web est une SPA multi-pages (React Router, fallback nginx/Vite) :
 ### API
 
 | Méthode et chemin | Réponses | Description |
+| `GET /` | 200 | Point d'entrée : nom du service et liste des routes |
 | --- | --- | --- |
 | `GET /events` | 200 | Événements à venir avec catégorie, tarifs (plusieurs prix par catégorie de billet) et places restantes (`?category=musique` pour filtrer) |
 | `GET /events/:id` | 200, 404 | Détail d'un événement, avec sa liste de tarifs |

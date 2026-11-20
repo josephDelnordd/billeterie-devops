@@ -24,6 +24,19 @@ afterEach(async () => {
   await app?.close();
 });
 
+describe("route racine", () => {
+  it("liste les points d'entrée de l'API au lieu de renvoyer un 404", async () => {
+    await start();
+    const response = await app.inject("/");
+    expect(response.statusCode).toBe(200);
+    const body = response.json();
+    expect(body.service).toBe("billetterie-api");
+    expect(body.endpoints).toContain("GET /events");
+    expect(body.endpoints).toContain("GET /health/live");
+    expect(body.endpoints).toContain("GET /metrics");
+  });
+});
+
 describe("sondes de santé", () => {
   it("liveness répond sans toucher à la base", async () => {
     const query = vi.fn();
